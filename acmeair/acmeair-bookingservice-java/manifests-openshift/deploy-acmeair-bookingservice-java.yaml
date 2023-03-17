@@ -100,7 +100,7 @@ spec:
         - name: acmeair-booking-db-2
           emptyDir: {}
       containers:
-      - image: mongo
+      - image: quay.io/mmondics/acmeair-mongo:manifest-v1
         name: acmeair-booking-db
         ports:
         - containerPort: 27017
