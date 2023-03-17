@@ -3,6 +3,7 @@ kind: Route
 metadata:
   name: acmeair-main-route
 spec:
+  host: acmeair.apps.sdmt.cpolab.ibm.com
   path: /acmeair
   to:
     kind: Service

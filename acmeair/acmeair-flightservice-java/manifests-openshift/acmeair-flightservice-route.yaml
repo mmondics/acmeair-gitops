@@ -3,6 +3,7 @@ kind: Route
 metadata:
   name: acmeair-flight-route
 spec:
+  host: acmeair.apps.sdmt.cpolab.ibm.com
   path: /flight
   to:
     kind: Service

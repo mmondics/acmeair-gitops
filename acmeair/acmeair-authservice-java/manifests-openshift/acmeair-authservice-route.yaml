@@ -3,6 +3,7 @@ kind: Route
 metadata:
   name: acmeair-auth-route
 spec:
+  host: acmeair.apps.sdmt.cpolab.ibm.com
   path: /auth
   to:
     kind: Service

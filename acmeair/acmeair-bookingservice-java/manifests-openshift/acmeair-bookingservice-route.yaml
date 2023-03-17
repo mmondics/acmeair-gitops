@@ -3,6 +3,7 @@ kind: Route
 metadata:
   name: acmeair-booking-route
 spec:
+  host: acmeair.apps.sdmt.cpolab.ibm.com
   path: /booking
   to:
     kind: Service
