@@ -1,0 +1,9 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: acmeair-auth-route
+spec:
+  path: /auth
+  to:
+    kind: Service
+    name: acmeair-auth-service

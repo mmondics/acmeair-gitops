@@ -1,0 +1,9 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: acmeair-booking-route
+spec:
+  path: /booking
+  to:
+    kind: Service
+    name: acmeair-booking-service
