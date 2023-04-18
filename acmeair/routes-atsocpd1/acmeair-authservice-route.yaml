@@ -1,0 +1,10 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: acmeair-auth-route
+spec:
+  host: acmeair.apps.atsocpd1.dmz
+  path: /auth
+  to:
+    kind: Service
+    name: acmeair-auth-service
