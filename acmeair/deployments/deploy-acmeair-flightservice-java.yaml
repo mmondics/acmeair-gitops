@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: acmeair-flightservice-java
-        image: quay.io/mmondics/acmeair-flightservice-java:s390x-manifest-micro4
+        image: quay.io/mmondics/acmeair-flightservice-java:manifest-micro4
         ports:
           - containerPort: 9080
           - containerPort: 9443
