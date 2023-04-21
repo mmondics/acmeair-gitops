@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: acmeair-customerservice-java
-        image: quay.io/mmondics/acmeair-customerservice-java:s390x-micro6
+        image: quay.io/mmondics/acmeair-customerservice-java:s390x-micro4
         ports:
           - containerPort: 9080
           - containerPort: 9443
