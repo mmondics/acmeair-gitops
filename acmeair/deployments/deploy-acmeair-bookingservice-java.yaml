@@ -122,8 +122,9 @@ spec:
         volumeMounts:
           - name: acmeair-booking-db-1
             mountPath: /data/configdb
-          - name: acmeair-booking-db-2
-            mountPath: /data/db
+          - name: pvc-booking-db
+            persistentVolumeClaim:
+              claimName: pvc-booking-db
       restartPolicy: Always
 status: {}
 ---
