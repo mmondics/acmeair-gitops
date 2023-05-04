@@ -90,7 +90,6 @@ spec:
       storage: 1Gi
   storageClassName: rootsquash-nfs
   volumeMode: Filesystem
-  volumeName: pv-booking-db
 ---
 apiVersion: apps/v1
 kind: Deployment
