@@ -137,10 +137,6 @@ spec:
   - ReadWriteMany
   capacity:
     storage: 1Gi
-  claimRef:
-    apiVersion: v1
-    kind: PersistentVolumeClaim
-    name: pvc-booking-db
   nfs:
     path: /srv/ocp/atsocpd1/mongodb
     server: 192.168.176.67
