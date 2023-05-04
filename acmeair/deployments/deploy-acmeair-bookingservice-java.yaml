@@ -77,10 +77,24 @@ spec:
 status:
   loadBalancer: {}
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-booking-db
+  namespace: acmeair-rhacm-persistent
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: rootsquash-nfs
+  volumeMode: Filesystem
+  volumeName: pv-booking-db
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   name: acmeair-booking-db
 spec:
   replicas: 1
@@ -90,15 +104,15 @@ spec:
   strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         name: acmeair-booking-db
     spec:
       volumes:
         - name: acmeair-booking-db-1
           emptyDir: {}
-        - name: acmeair-booking-db-2
-          emptyDir: {}
+        - name: pvc-booking-db
+          persistentVolumeClaim:
+            claimName: pvc-booking-db
       containers:
       - image: quay.io/mmondics/acmeair-mongo:manifest-v1
         name: acmeair-booking-db
@@ -113,3 +127,23 @@ spec:
             mountPath: /data/db
       restartPolicy: Always
 status: {}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-booking-db
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 1Gi
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    name: pvc-booking-db
+  nfs:
+    path: /srv/ocp/atsocpd1/mongodb
+    server: 192.168.176.67
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: rootsquash-nfs
+  volumeMode: Filesystem
