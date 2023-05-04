@@ -91,6 +91,22 @@ spec:
   storageClassName: rootsquash-nfs
   volumeMode: Filesystem
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-booking-db
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 1Gi
+  nfs:
+    path: /srv/ocp/atsocpd1/mongodb
+    server: 192.168.176.67
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: rootsquash-nfs
+  volumeMode: Filesystem
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -127,19 +143,3 @@ spec:
               claimName: pvc-booking-db
       restartPolicy: Always
 status: {}
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: pv-booking-db
-spec:
-  accessModes:
-  - ReadWriteMany
-  capacity:
-    storage: 1Gi
-  nfs:
-    path: /srv/ocp/atsocpd1/mongodb
-    server: 192.168.176.67
-  persistentVolumeReclaimPolicy: Delete
-  storageClassName: rootsquash-nfs
-  volumeMode: Filesystem
