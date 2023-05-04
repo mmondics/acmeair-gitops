@@ -3,7 +3,7 @@ kind: Route
 metadata:
   name: acmeair-auth-route
 spec:
-  host: acmeair.apps.x3wk.dmz
+  host: acmeair-rhacm.apps.x3wk.dmz
   path: /auth
   to:
     kind: Service

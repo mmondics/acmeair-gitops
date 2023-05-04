@@ -3,7 +3,7 @@ kind: Route
 metadata:
   name: acmeair-booking-route
 spec:
-  host: acmeair.apps.x3wk.dmz
+  host: acmeair-rhacm.apps.x3wk.dmz
   path: /booking
   to:
     kind: Service
