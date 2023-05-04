@@ -144,6 +144,6 @@ spec:
   nfs:
     path: /srv/ocp/atsocpd1/mongodb
     server: 192.168.176.67
-  persistentVolumeReclaimPolicy: Retain
+  persistentVolumeReclaimPolicy: Delete
   storageClassName: rootsquash-nfs
   volumeMode: Filesystem
