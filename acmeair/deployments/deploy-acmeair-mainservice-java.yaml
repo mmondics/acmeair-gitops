@@ -16,6 +16,8 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "9080"
     spec:
+      nodeSelector:
+        app: mainservice
       containers:
       - name: acmeair-mainservice-java
         image: quay.io/mmondics/acmeair-mainservice-java:manifest-micro4
