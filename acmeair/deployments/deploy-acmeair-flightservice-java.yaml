@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: acmeair-flightservice
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       name: acmeair-flight-deployment
@@ -81,7 +81,7 @@ metadata:
   creationTimestamp: null
   name: acmeair-flight-db
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       name: acmeair-flight-db

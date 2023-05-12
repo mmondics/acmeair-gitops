@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: acmeair-bookingservice
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       name: acmeair-booking-deployment
@@ -85,7 +85,7 @@ metadata:
   creationTimestamp: null
   name: acmeair-booking-db
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       name: acmeair-booking-db
