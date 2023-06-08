@@ -143,6 +143,6 @@ spec:
         image: quay.io/mmondics/acmeair-mongo:manifest-v1
         volumeMounts:
         - name: acmeair-booking-db-1
-          emptyDir: {}
+          emptyDir: /data/configdb
         - name: acmeair-booking-db-2
-          emptyDir: {}
+          emptyDir: /data/db
