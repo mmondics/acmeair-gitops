@@ -130,6 +130,11 @@ spec:
       labels:
         name: acmeair-booking-db
     spec:
+      volumes:
+        - name: acmeair-booking-db-1
+          emptyDir: {}
+        - name: acmeair-booking-db-2
+          emptyDir: {}
       containers:
       - name: acmeair-booking-db
         ports:
