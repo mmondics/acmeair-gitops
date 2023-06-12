@@ -74,42 +74,72 @@ spec:
     name: acmeair-flight-db
 status:
   loadBalancer: {}
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   creationTimestamp: null
+#   name: acmeair-flight-db
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       name: acmeair-flight-db
+#   strategy: {}
+#   template:
+#     metadata:
+#       creationTimestamp: null
+#       labels:
+#         name: acmeair-flight-db
+#     spec:
+#       nodeSelector:
+#         app: flightdb
+#       volumes:
+#         - name: acmeair-flight-db-1
+#           emptyDir: {}
+#         - name: acmeair-flight-db-2
+#           emptyDir: {}
+#       containers:
+#       - image: quay.io/mmondics/acmeair-mongo:manifest-v1
+#         name: acmeair-flight-db
+#         ports:
+#         - containerPort: 27017
+#           protocol: TCP
+#         resources: {}
+#         volumeMounts:
+#           - name: acmeair-flight-db-1
+#             mountPath: /data/configdb
+#           - name: acmeair-flight-db-2
+#             mountPath: /data/db
+#       restartPolicy: Always
+# status: {}
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
-  creationTimestamp: null
   name: acmeair-flight-db
 spec:
-  replicas: 1
   selector:
     matchLabels:
       name: acmeair-flight-db
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         name: acmeair-flight-db
     spec:
-      nodeSelector:
-        app: flightdb
       volumes:
         - name: acmeair-flight-db-1
           emptyDir: {}
         - name: acmeair-flight-db-2
           emptyDir: {}
       containers:
-      - image: quay.io/mmondics/acmeair-mongo:manifest-v1
-        name: acmeair-flight-db
+      - name: acmeair-flight-db
         ports:
         - containerPort: 27017
           protocol: TCP
-        resources: {}
+        image: quay.io/mmondics/acmeair-mongo:manifest-v1
         volumeMounts:
-          - name: acmeair-flight-db-1
-            mountPath: /data/configdb
-          - name: acmeair-flight-db-2
-            mountPath: /data/db
-      restartPolicy: Always
-status: {}
+        - name: acmeair-flight-db-1
+          mountPath: /data/configdb
+        - name: acmeair-flight-db-2
+          mountPath: /data/db

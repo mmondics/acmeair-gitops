@@ -76,21 +76,54 @@ spec:
     name: acmeair-customer-db
 status:
   loadBalancer: {}
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   creationTimestamp: null
+#   name: acmeair-customer-db
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       name: acmeair-customer-db
+#   strategy: {}
+#   template:
+#     metadata:
+#       creationTimestamp: null
+#       labels:
+#         name: acmeair-customer-db
+#     spec:
+#       volumes:
+#         - name: acmeair-customer-db-1
+#           emptyDir: {}
+#         - name: acmeair-customer-db-2
+#           emptyDir: {}
+#       containers:
+#       - image: quay.io/mmondics/acmeair-mongo:manifest-v1
+#         name: acmeair-customer-db
+#         ports:
+#         - containerPort: 27017
+#           protocol: TCP
+#         resources: {}
+#         volumeMounts:
+#           - name: acmeair-customer-db-1
+#             mountPath: /data/configdb
+#           - name: acmeair-customer-db-2
+#             mountPath: /data/db
+#       restartPolicy: Always
+# status: {}
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: DaemonSet
 metadata:
-  creationTimestamp: null
   name: acmeair-customer-db
 spec:
-  replicas: 1
   selector:
     matchLabels:
       name: acmeair-customer-db
-  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         name: acmeair-customer-db
     spec:
@@ -100,16 +133,13 @@ spec:
         - name: acmeair-customer-db-2
           emptyDir: {}
       containers:
-      - image: quay.io/mmondics/acmeair-mongo:manifest-v1
-        name: acmeair-customer-db
+      - name: acmeair-customer-db
         ports:
         - containerPort: 27017
           protocol: TCP
-        resources: {}
+        image: quay.io/mmondics/acmeair-mongo:manifest-v1
         volumeMounts:
-          - name: acmeair-customer-db-1
-            mountPath: /data/configdb
-          - name: acmeair-customer-db-2
-            mountPath: /data/db
-      restartPolicy: Always
-status: {}
+        - name: acmeair-customer-db-1
+          mountPath: /data/configdb
+        - name: acmeair-customer-db-2
+          mountPath: /data/db
