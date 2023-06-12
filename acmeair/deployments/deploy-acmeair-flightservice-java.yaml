@@ -22,6 +22,10 @@ spec:
           - containerPort: 9080
           - containerPort: 9443
         imagePullPolicy: Always
+        limits:
+          cpu: '8'
+        requests:
+          cpu: '4'
         env:
         - name: USERNAME
           value: admin
