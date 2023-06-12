@@ -15,8 +15,6 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "9080"
     spec:
-      nodeSelector:
-        app: flightservice
       containers:
       - name: acmeair-flightservice-java
         image: quay.io/mmondics/acmeair-flightservice-java:manifest-micro4
@@ -92,8 +90,6 @@ spec:
       labels:
         name: acmeair-flight-db
     spec:
-      nodeSelector:
-        app: flightdb
       volumes:
         - name: acmeair-flight-db-1
           emptyDir: {}

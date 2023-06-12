@@ -15,8 +15,6 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "9080"
     spec:
-      nodeSelector:
-        app: customerservice
       containers:
       - name: acmeair-customerservice-java
         image: quay.io/mmondics/acmeair-customerservice-java:manifest-micro4
