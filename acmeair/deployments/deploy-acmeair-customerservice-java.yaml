@@ -170,11 +170,11 @@ spec:
       stabilizationWindowSeconds: 0
       policies:
       - type: Percent
-        value: 100
+        value: 200
         periodSeconds: 5
     scaleUp:
       stabilizationWindowSeconds: 0
       policies:
       - type: Percent
-        value: 100
+        value: 200
         periodSeconds: 5
