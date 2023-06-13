@@ -22,11 +22,6 @@ spec:
           - containerPort: 9080
           - containerPort: 9443
         imagePullPolicy: Always
-        resources:
-          limits:
-            cpu: '10'
-          requests:
-            cpu: '5'
         env:
         - name: USERNAME
           value: admin
@@ -87,7 +82,7 @@ kind: Deployment
 metadata:
  name: acmeair-booking-db
 spec:
- replicas: 12
+ replicas: 1
  selector:
    matchLabels:
      name: acmeair-booking-db
@@ -117,65 +112,3 @@ spec:
            mountPath: /data/db
      restartPolicy: Always
 status: {}
-# ---
-# apiVersion: apps/v1
-# kind: DaemonSet
-# metadata:
-#   name: acmeair-booking-db
-# spec:
-#   selector:
-#     matchLabels:
-#       name: acmeair-booking-db
-#   template:
-#     metadata:
-#       labels:
-#         name: acmeair-booking-db
-#     spec:
-#       volumes:
-#         - name: acmeair-booking-db-1
-#           emptyDir: {}
-#         - name: acmeair-booking-db-2
-#           emptyDir: {}
-#       containers:
-#       - name: acmeair-booking-db
-#         ports:
-#         - containerPort: 27017
-#           protocol: TCP
-#         image: quay.io/mmondics/acmeair-mongo:manifest-v1
-#         volumeMounts:
-#         - name: acmeair-booking-db-1
-#           mountPath: /data/configdb
-#         - name: acmeair-booking-db-2
-#           mountPath: /data/db
----
-apiVersion: autoscaling/v2beta2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: bookingservice-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: acmeair-bookingservice
-  minReplicas: 1
-  maxReplicas: 20
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          averageUtilization: 10
-          type: Utilization
-  behavior:
-    scaleDown:
-      stabilizationWindowSeconds: 0
-      policies:
-      - type: Percent
-        value: 200
-        periodSeconds: 5
-    scaleUp:
-      stabilizationWindowSeconds: 0
-      policies:
-      - type: Percent
-        value: 200
-        periodSeconds: 5
