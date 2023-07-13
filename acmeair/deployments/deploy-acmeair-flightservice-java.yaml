@@ -145,7 +145,7 @@ status: {}
 #         - name: acmeair-flight-db-2
 #           mountPath: /data/db
 ---
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: flightservice-hpa
@@ -169,7 +169,7 @@ spec:
       policies:
       - type: Percent
         value: 200
-        periodSeconds: 5
+        periodSeconds: 15
     scaleUp:
       stabilizationWindowSeconds: 0
       policies:
