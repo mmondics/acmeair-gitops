@@ -68,13 +68,13 @@ spec:
     kind: Deployment
     name: acmeair-authservice
   minReplicas: 1
-  maxReplicas: 20
+  maxReplicas: 30
   metrics:
     - type: Resource
       resource:
         name: cpu
         target:
-          averageUtilization: 20
+          averageUtilization: 10
           type: Utilization
   behavior:
     scaleDown:

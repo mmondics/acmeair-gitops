@@ -157,7 +157,7 @@ spec:
     kind: Deployment
     name: acmeair-customerservice
   minReplicas: 1
-  maxReplicas: 20
+  maxReplicas: 30
   metrics:
     - type: Resource
       resource:
