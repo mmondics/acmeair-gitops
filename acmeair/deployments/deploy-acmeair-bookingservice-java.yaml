@@ -87,7 +87,7 @@ kind: Deployment
 metadata:
  name: acmeair-booking-db
 spec:
- replicas: 12
+ replicas: 1
  selector:
    matchLabels:
      name: acmeair-booking-db
