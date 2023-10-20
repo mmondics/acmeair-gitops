@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: acmeair-customerservice
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       name: acmeair-customer-deployment
@@ -156,7 +156,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: acmeair-customerservice
-  minReplicas: 1
+  minReplicas: 2
   maxReplicas: 30
   metrics:
     - type: Resource

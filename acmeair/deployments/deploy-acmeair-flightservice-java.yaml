@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: acmeair-flightservice
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       name: acmeair-flight-deployment
@@ -84,7 +84,7 @@ metadata:
   creationTimestamp: null
   name: acmeair-flight-db
 spec:
-  replicas: 6
+  replicas: 1
   selector:
     matchLabels:
       name: acmeair-flight-db
@@ -154,7 +154,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: acmeair-flightservice
-  minReplicas: 1
+  minReplicas: 2
   maxReplicas: 30
   metrics:
     - type: Resource
