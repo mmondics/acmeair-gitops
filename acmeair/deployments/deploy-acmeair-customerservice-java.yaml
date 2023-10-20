@@ -86,7 +86,7 @@ metadata:
   creationTimestamp: null
   name: acmeair-customer-db
 spec:
-  replicas: 1
+  replicas: 6
   selector:
     matchLabels:
       name: acmeair-customer-db
