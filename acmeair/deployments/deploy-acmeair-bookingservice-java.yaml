@@ -177,5 +177,5 @@ spec:
       stabilizationWindowSeconds: 0
       policies:
       - type: Percent
-        value: 200
+        value: 400
         periodSeconds: 5
