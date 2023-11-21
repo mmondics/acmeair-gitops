@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: acmeair-customerservice-java
-        image: quay.io/mmondics/acmeair-customerservice-java:amd64-3.3-test1
+        image: quay.io/mmondics/acmeair-customerservice-java:manifest-3.3
         ports:
           - containerPort: 9080
           - containerPort: 9443
