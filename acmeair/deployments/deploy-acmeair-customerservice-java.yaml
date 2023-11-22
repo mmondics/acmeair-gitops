@@ -38,18 +38,6 @@ spec:
           value: 'true'
         - name: ACMEAIR_STACKAA_AUTH_URL
           value: "http://acmeair-auth-service:9080/auth"
-        - name: JAEGER_AGENT_HOST
-          value: jaeger-all-in-one-inmemory-agent
-        - name: JAEGER_AGENT_PORT
-          value: '6832'
-        - name: JAEGER_ENDPOINT
-          value: 'http://jaeger-all-in-one-inmemory-collector:14268/api/traces'
-        - name: ACCESS_LOGGING_ENABLED
-          value: 'false'
-        - name: TRACE_SPEC
-          value: '*=info'
-        - name: LOGGING_FORMAT
-          value: 'simple'
         readinessProbe:
           httpGet:
             path: /health
