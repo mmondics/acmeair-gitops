@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: acmeair-authservice
 spec:
-  replicas: 1
+  replicas: 4
   selector:
     matchLabels:
       name: acmeair-auth-deployment
