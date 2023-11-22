@@ -25,9 +25,9 @@ spec:
         imagePullPolicy: Always
         resources:
           limits:
-            cpu: '2'
+            cpu: '3'
           requests:
-            cpu: '750m'
+            cpu: '1'
         env:
         - name: USERNAME
           value: admin
