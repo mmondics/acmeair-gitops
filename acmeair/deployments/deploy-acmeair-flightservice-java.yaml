@@ -154,35 +154,35 @@ status: {}
 #           mountPath: /data/configdb
 #         - name: acmeair-flight-db-2
 #           mountPath: /data/db
-# ---
-# apiVersion: autoscaling/v2
-# kind: HorizontalPodAutoscaler
-# metadata:
-#   name: flightservice-hpa
-# spec:
-#   scaleTargetRef:
-#     apiVersion: apps/v1
-#     kind: Deployment
-#     name: acmeair-flightservice
-#   minReplicas: 2
-#   maxReplicas: 30
-#   metrics:
-#     - type: Resource
-#       resource:
-#         name: cpu
-#         target:
-#           averageUtilization: 10
-#           type: Utilization
-#   behavior:
-#     scaleDown:
-#       stabilizationWindowSeconds: 0
-#       policies:
-#       - type: Percent
-#         value: 200
-#         periodSeconds: 15
-#     scaleUp:
-#       stabilizationWindowSeconds: 0
-#       policies:
-#       - type: Percent
-#         value: 400
-#         periodSeconds: 5
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: flightservice-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: acmeair-flightservice
+  minReplicas: 2
+  maxReplicas: 30
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          averageUtilization: 10
+          type: Utilization
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 200
+        periodSeconds: 15
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 400
+        periodSeconds: 5
