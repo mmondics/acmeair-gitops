@@ -34,8 +34,6 @@ spec:
           value: password
         - name: MONGO_HOST
           value: acmeair-flight-db
-        - name: SECURE_SERVICE_CALLS
-          value: 'true'
         readinessProbe:
           httpGet:
             path: /health
