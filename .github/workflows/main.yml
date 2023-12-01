@@ -67,6 +67,9 @@ jobs:
       id: checkout
       uses: actions/checkout@v2
 
+    - name: maven clean
+      run: |
+        mvn clean package -f ./acmeair/source/acmeair-microservice-java/pom.xml
     - name: podman build
       run: |
         podman version
