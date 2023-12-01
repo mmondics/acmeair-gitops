@@ -21,10 +21,10 @@ env:
   SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
   
 on:
-#  push:
-#    paths:
-#      - acmeair/source/acmeair-mainservice-java/src/main/webapp/*
-on: workflow_dispatch
+  push:
+    paths:
+      - acmeair/source/acmeair-mainservice-java/src/main/webapp/*
+#on: workflow_dispatch
 
 jobs:
   s390x-build-and-push: 
