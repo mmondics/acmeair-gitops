@@ -69,11 +69,7 @@ jobs:
 
     - name: maven clean
       run: |
-        echo "running pwd"
-        pwd
-        echo "running tree"
-        tree
-        mvn clean package -f ./source/acmeair-microservice-java/pom.xml
+        mvn clean package -f acmeair/source/acmeair-microservice-java/pom.xml
   
     - name: podman build
       run: |
@@ -133,7 +129,7 @@ jobs:
 
     - name: maven clean
       run: |
-        mvn clean package -f ./source/acmeair-microservice-java/pom.xml
+        mvn clean package -f acmeair/source/acmeair-microservice-java/pom.xml
 
     - name: podman build
       run: |
