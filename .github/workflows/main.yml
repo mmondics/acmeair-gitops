@@ -71,7 +71,7 @@ jobs:
       run: |
         podman version
         podman login registry.redhat.io -u ${{ env.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
-        podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java/src/main/webapp/*
+        podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java
 
     - name: Push to Registry 
       id: push-to-registry
@@ -127,7 +127,7 @@ jobs:
       run: |
         podman version
         podman login registry.redhat.io -u ${{ env.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
-        podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java/src/main/webapp/*
+        podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java
 
     - name: Push to Registry 
       id: push-to-registry
