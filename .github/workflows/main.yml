@@ -24,7 +24,7 @@ on:
   push:
     paths:
       - acmeair/source/acmeair-mainservice-java/src/main/webapp/*
-#on: workflow_dispatch
+on: workflow_dispatch
 
 jobs:
   s390x-build-and-push: 
