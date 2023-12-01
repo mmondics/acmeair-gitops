@@ -39,8 +39,6 @@ jobs:
         script: |
           const secrets = {
             QUAY_PASSWORD: `${{ secrets.QUAY_PASSWORD }}`,
-            QUAY_USERNAME: `${{ secrets.QUAY_USERNAME }}`,
-            REDHAT_USERNAME: `${{ secrets.REDHAT_USERNAME }}`,
             REDHAT_PASSWORD: `${{ secrets.REDHAT_PASSWORD }}`,
           };
 
