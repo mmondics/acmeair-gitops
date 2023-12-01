@@ -1,4 +1,4 @@
-FROM open-liberty:full
+FROM docker.io/open-liberty:full
 
 # Config
 COPY --chown=1001:0 src/main/liberty/config/server.xml /config/server.xml
