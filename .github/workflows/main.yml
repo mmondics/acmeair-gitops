@@ -69,7 +69,7 @@ jobs:
 
     - name: maven clean
       run: |
-        mvn clean package -f acmeair/source/acmeair-microservice-java/pom.xml
+        mvn clean package -f ./acmeair/source/acmeair-microservice-java/pom.xml
   
     - name: podman build
       run: |
