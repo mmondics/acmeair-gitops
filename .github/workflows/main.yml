@@ -1,23 +1,23 @@
 name: Build, Scan and Rollout Multiarchitecture Containers
 
 env: 
-  QUAY_USERNAME: QUAY_USERNAME
+  QUAY_USERNAME: mmondics
   QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
-  REDHAT_USERNAME: REDHAT_USERNAME
+  REDHAT_USERNAME: mmondics
   REDHAT_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
-  GIT_USERNAME: GIT_USERNAME
-  GIT_EMAIL: GIT_EMAIL
+  GIT_USERNAME: mmondics
+  GIT_EMAIL: matt.mondics@ibm.com
   Z_IMAGE_TAGS: s390x-${{ github.sha }}
   X_IMAGE_TAGS: amd64-${{ github.sha }}
   MANIFEST_IMAGE_TAG: manifest-${{ github.sha }}
-  ROX_CENTRAL_ADDRESS: ROX_ADDRESS
+  ROX_CENTRAL_ADDRESS: https://central-stackrox.apps.atsocpd2.dmz:443
   ROX_API_TOKEN: ${{ secrets.ROX_API_TOKEN }}
 
   IMAGE_REGISTRY: quay.io/mmondics
   APP_NAME: acmeair-mainservice-java
   MANIFEST_NAME: acmeair-mainservice-java-manifest
 
-  SMTP_USERNAME: env.SMTP_USERNAME
+  SMTP_USERNAME: ibmwashingtonsystemscenter@gmail.com
   SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
   
 on:
@@ -70,7 +70,7 @@ jobs:
     - name: podman build
       run: |
         podman version
-        podman login registry.redhat.io -u ${{ secrets.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
+        podman login registry.redhat.io -u ${{ env.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
         podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java/src/main/webapp/index.html
 
     - name: Push to Registry 
@@ -95,8 +95,6 @@ jobs:
         script: |
           const secrets = {
             QUAY_PASSWORD: `${{ secrets.QUAY_PASSWORD }}`,
-            QUAY_USERNAME: `${{ secrets.QUAY_USERNAME }}`,
-            REDHAT_USERNAME: `${{ secrets.REDHAT_USERNAME }}`,
             REDHAT_PASSWORD: `${{ secrets.REDHAT_PASSWORD }}`,
           };
 
@@ -128,7 +126,7 @@ jobs:
     - name: podman build
       run: |
         podman version
-        podman login registry.redhat.io -u ${{ secrets.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
+        podman login registry.redhat.io -u ${{ env.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
         podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java/src/main/webapp/index.html
 
     - name: Push to Registry 
