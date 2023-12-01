@@ -1,0 +1,248 @@
+name: Build, Scan and Rollout Multiarchitecture Containers
+
+env: 
+  QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
+  QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+  REDHAT_USERNAME: ${{ secrets.REDHAT_USERNAME }}
+  REDHAT_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
+  GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
+  GIT_EMAIL: ${{ secrets.GIT_EMAIL }}
+  Z_IMAGE_TAGS: s390x-${{ github.sha }}
+  X_IMAGE_TAGS: amd64-${{ github.sha }}
+  MANIFEST_IMAGE_TAG: manifest-${{ github.sha }}
+  ROX_CENTRAL_ADDRESS: ${{ secrets.ROX_ADDRESS }}
+  ROX_API_TOKEN: ${{ secrets.ROX_API_TOKEN }}
+
+  IMAGE_REGISTRY: quay.io/mmondics
+  APP_NAME: acmeair-mainservice-java
+  MANIFEST_NAME: acmeair-mainservice-java-manifest
+
+  SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+  SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+  
+on:
+  push:
+    paths:
+      - acmeair/source/acmeair-mainservice-java/src/main/webapp/*
+#on: workflow_dispatch
+
+jobs:
+  s390x-build-and-push: 
+    name: s390x build and push to quay.io
+    runs-on: [self-hosted, linux, s390x]
+    environment: openshift
+    
+    steps:
+    - name: Check if secrets exists
+      uses: actions/github-script@v3
+      with:
+        script: |
+          const secrets = {
+            QUAY_PASSWORD: `${{ secrets.QUAY_PASSWORD }}`,
+            QUAY_USERNAME: `${{ secrets.QUAY_USERNAME }}`,
+            REDHAT_USERNAME: `${{ secrets.REDHAT_USERNAME }}`,
+            REDHAT_PASSWORD: `${{ secrets.REDHAT_PASSWORD }}`,
+          };
+
+          const missingSecrets = Object.entries(secrets).filter(([ name, value ]) => {
+            if (value.length === 0) {
+              core.warning(`Secret "${name}" is not set`);
+              return true;
+            }
+            core.info(`✔️ Secret "${name}" is set`);
+            return false;
+
+          });
+
+          if (missingSecrets.length > 0) {
+            core.setFailed(`❌ At least one required secret is not set in the repository. \n` +
+              "You can add it using:\n" +
+              "GitHub UI: https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository \n" +
+              "GitHub CLI: https://cli.github.com/manual/gh_secret_set \n" +
+              "Also, refer to https://github.com/redhat-actions/oc-login#getting-started-with-the-action-or-see-example");
+          }
+          else {
+            core.info(`✅ All the required secrets are set`);
+          }
+
+    - name: Checkout
+      id: checkout
+      uses: actions/checkout@v2
+
+    - name: podman build
+      run: |
+        podman version
+        podman login registry.redhat.io -u ${{ secrets.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
+        podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java/src/main/webapp/index.html
+
+    - name: Push to Registry 
+      id: push-to-registry
+      uses: redhat-actions/push-to-registry@v2
+      with:
+        image: ${{ env.APP_NAME }}
+        tags: ${{ env.Z_IMAGE_TAGS }}
+        registry: ${{ env.IMAGE_REGISTRY }}
+        username: ${{ env.QUAY_USERNAME }}
+        password: ${{ env.QUAY_PASSWORD }}
+
+  amd64-build-and-push: 
+    name: amd64 build and push to quay.io
+    runs-on: [self-hosted, linux, x64]
+    environment: openshift
+
+    steps:
+    - name: Check if secrets exists
+      uses: actions/github-script@v3
+      with:
+        script: |
+          const secrets = {
+            QUAY_PASSWORD: `${{ secrets.QUAY_PASSWORD }}`,
+            QUAY_USERNAME: `${{ secrets.QUAY_USERNAME }}`,
+            REDHAT_USERNAME: `${{ secrets.REDHAT_USERNAME }}`,
+            REDHAT_PASSWORD: `${{ secrets.REDHAT_PASSWORD }}`,
+          };
+
+          const missingSecrets = Object.entries(secrets).filter(([ name, value ]) => {
+            if (value.length === 0) {
+              core.warning(`Secret "${name}" is not set`);
+              return true;
+            }
+            core.info(`✔️ Secret "${name}" is set`);
+            return false;
+
+          });
+
+          if (missingSecrets.length > 0) {
+            core.setFailed(`❌ At least one required secret is not set in the repository. \n` +
+              "You can add it using:\n" +
+              "GitHub UI: https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository \n" +
+              "GitHub CLI: https://cli.github.com/manual/gh_secret_set \n" +
+              "Also, refer to https://github.com/redhat-actions/oc-login#getting-started-with-the-action-or-see-example");
+          }
+          else {
+            core.info(`✅ All the required secrets are set`);
+          }
+
+    - name: Checkout
+      id: checkout
+      uses: actions/checkout@v2
+
+    - name: podman build
+      run: |
+        podman version
+        podman login registry.redhat.io -u ${{ secrets.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
+        podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java/src/main/webapp/index.html
+
+    - name: Push to Registry 
+      id: push-to-registry
+      uses: redhat-actions/push-to-registry@v2
+      with:
+        image: ${{ env.APP_NAME }}
+        tags: ${{ env.X_IMAGE_TAGS }}
+        registry: ${{ env.IMAGE_REGISTRY }}
+        username: ${{ env.QUAY_USERNAME }}
+        password: ${{ env.QUAY_PASSWORD }}
+
+  create-manifest:
+    name: combine amd64 and s390x container images into a single manifest and push to quay.io
+    runs-on: ubuntu-latest
+    needs:
+      - s390x-build-and-push
+      - amd64-build-and-push
+    environment: openshift
+    
+    steps:
+      - name: podman login
+        run: podman login ${{ env.IMAGE_REGISTRY }} -u ${{ env.QUAY_USERNAME }} -p ${{ env.QUAY_PASSWORD }}
+      - name: create manifest list
+        run: podman manifest create ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
+      - name: pull new container images
+        run: |
+          podman pull ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }}
+          podman pull ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }}
+      - name: add container images to manifest
+        run: |
+          podman manifest add ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }}
+          podman manifest add ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }}
+      - name: push manifest list
+        run: podman manifest push ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
+  
+  update-app-yaml:
+    name: update acmeair mainservice application YAML to use new manifest image
+    runs-on: ubuntu-latest
+    needs: create-manifest
+    environment: openshift
+    
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3.5.3
+      - name: one liner to replace container image in YAML
+        run: sed -i '183s@.*@           ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}@' ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml
+      - name: git config
+        run: |
+          git config --global user.email ${{ env.GIT_EMAIL }}
+          git config --global user.name ${{ env.GIT_USERNAME }}
+      - name: check for changes
+        run: git status
+      - name: stage changed files
+        run: git add .
+      - name: commit changed files
+        run: git commit -m "auto update deploy-acmeair-mainservice-java.yaml"
+      - name: fetch from main
+        run: git fetch origin main
+      - name: push code to master
+        run: git push origin HEAD:main
+
+  acs-image-scan: 
+    name: Scan container manifest with Red Hat Advanced Cluster Security
+    runs-on: [self-hosted, linux, x64]
+    environment: openshift
+    needs: update-app-yaml
+    continue-on-error: true
+    
+    steps:
+    - name: install roxctl cli        
+      run: | 
+        curl -O https://mirror.openshift.com/pub/rhacs/assets/4.1.0/bin/Linux/roxctl
+        chmod +x roxctl
+    - name: deployment-check
+      run: |
+        ./roxctl --insecure-skip-tls-verify deployment check --endpoint ${{ env.ROX_CENTRAL_ADDRESS }} -f ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml 2>&1 | tee deployment_check.txt
+    - name: image-scan
+      run: |
+        ./roxctl --insecure-skip-tls-verify image scan --endpoint ${{ env.ROX_CENTRAL_ADDRESS }} --image ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} 2>&1 | tee image_scan.txt
+    - name: image-check
+      run: |
+        ./roxctl --insecure-skip-tls-verify image check --endpoint ${{ env.ROX_CENTRAL_ADDRESS }} --image ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} 2>&1 | tee image_check.txt
+    - name: Send email 
+      # uses: dawidd6/action-send-mail@fa73d6accd067d4151b71f124ed939da15097abf
+      uses: dawidd6/action-send-mail@v3.7.2
+      with:
+        # Connection URL protocol://user:password@server:port, protocol can be smtp or smtp+starttls, replaces server_address, server_port, secure, username and password
+        #connection_url: # optional
+        # SMTP server address
+        server_address: smtp.gmail.com
+        # SMTP server port
+        server_port: 465
+        # Whether this connection use TLS (default is true if server_port is 465)
+        secure: true
+        # Authenticate as this user to SMTP server
+        username: ${{ env.SMTP_USERNAME }}
+        # Authenticate with this password to SMTP server
+        password: ${{ env.SMTP_PASSWORD }}
+        # Subject of mail message
+        subject: Security Scan for image ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
+        # Recipients mail addresses (separated with comma)
+        to: matt.mondics@ibm.com
+        # Full name of mail sender (might be with an email address specified in <>)
+        from: Matt Mondics <matt.mondics@ibm.com>
+        # Body of mail message (might be a filename prefixed with file:// to read from)
+        body: |
+          Red Hat Advanced Cluster Security scans for image:
+          ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
+          
+          See attachments for deployment check, image check, and image scan.
+          
+          Update the application code to remediate security findings described in the attached files.
+          
+          Per IBM security practices, failed security scans do not prevent commits to development branches, but they will prevent merging to main branches.
