@@ -69,6 +69,7 @@ jobs:
 
     - name: mvn clean package
       run: |
+        export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.382.b05-2.fc37.s390x/jre
         mvn clean package -f ./acmeair/source/acmeair-mainservice-java/pom.xml
   
     - name: podman build
@@ -129,6 +130,7 @@ jobs:
 
     - name: mvn clean package
       run: |
+        export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.382.b05-2.fc37.x86_64/jre/
         mvn clean package -f ./acmeair/source/acmeair-mainservice-java/pom.xml
 
     - name: podman build
