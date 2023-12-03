@@ -181,9 +181,11 @@ jobs:
     
     steps:
       - name: checkout
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v4
+        with:
+          ref: DevSecOps
       - name: one liner to replace container image in YAML
-        run: pwd && sed -i '21s@.*@           ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}@' ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml
+        run: sed -i '21s@.*@           ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}@' ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml
       - name: git config
         run: |
           git config --global user.email ${{ env.GIT_EMAIL }}
