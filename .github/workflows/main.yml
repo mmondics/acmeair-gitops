@@ -185,7 +185,8 @@ jobs:
         with:
           ref: DevSecOps
       - name: one liner to replace container image in YAML
-        run: sed -i '21s@.*@           ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}@' ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml
+        run: |
+          sed -i '21s@.*@           image: ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}@' ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml
       - name: git config
         run: |
           git config --global user.email ${{ env.GIT_EMAIL }}
@@ -203,7 +204,7 @@ jobs:
 
   acs-image-scan: 
     name: Scan container manifest with Red Hat Advanced Cluster Security
-    runs-on: [self-hosted, linux, x64]
+    runs-on: [self-hosted, linux, s390x]
     environment: openshift
     needs: update-app-yaml
     continue-on-error: true
@@ -211,9 +212,9 @@ jobs:
     steps:
     - name: install roxctl cli        
       run: | 
-        curl -O https://mirror.openshift.com/pub/rhacs/assets/4.3.0/bin/Linux/roxctl
-        chmod +x roxctl
-        export ROX_API_TOKEN=${{ env.ROX_API_TOKEN }}
+        curl -O https://mirror.openshift.com/pub/rhacs/assets/4.3.0/bin/Linux/roxctl-s390x
+        chmod +x roxctl-s390x
+        ln -s roxctl roxctl-s390x
     - name: deployment-check
       run: |
         ./roxctl --insecure-skip-tls-verify deployment check --endpoint ${{ env.ROX_CENTRAL_ADDRESS }} -f ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml 2>&1 | tee deployment_check.txt
