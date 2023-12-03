@@ -74,9 +74,6 @@ jobs:
   
     - name: podman build
       run: |
-        echo "runner:2000:65534" > /etc/subuid
-        echo "runner:2000:65534" > /etc/suguid
-        podman system migrate
         podman version
         podman login registry.redhat.io -u ${{ env.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
         podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java
