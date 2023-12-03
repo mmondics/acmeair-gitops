@@ -196,10 +196,10 @@ jobs:
         run: git add .
       - name: commit changed files
         run: git commit -m "auto update deploy-acmeair-mainservice-java.yaml"
-      - name: fetch from main
-        run: git fetch origin main
-      - name: push code to master
-        run: git push origin HEAD:main
+      - name: fetch from DevSecOps
+        run: git fetch origin DevSecOps
+      - name: push code to DevSecOps branch
+        run: git push origin HEAD:DevSecOps
 
   acs-image-scan: 
     name: Scan container manifest with Red Hat Advanced Cluster Security
