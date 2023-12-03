@@ -215,6 +215,7 @@ jobs:
         curl -O https://mirror.openshift.com/pub/rhacs/assets/4.3.0/bin/Linux/roxctl-s390x
         chmod +x roxctl-s390x
         ln -s roxctl-s390x roxctl
+      continue-on-error: true
     - name: deployment-check
       run: |
         ./roxctl --insecure-skip-tls-verify deployment check --endpoint ${{ env.ROX_CENTRAL_ADDRESS }} -f ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml 2>&1 | tee deployment_check.txt
