@@ -211,8 +211,9 @@ jobs:
     steps:
     - name: install roxctl cli        
       run: | 
-        curl -O https://mirror.openshift.com/pub/rhacs/assets/4.1.0/bin/Linux/roxctl
+        curl -O https://mirror.openshift.com/pub/rhacs/assets/4.3.0/bin/Linux/roxctl
         chmod +x roxctl
+        export ROX_API_TOKEN=${{ env.ROX_API_TOKEN }}
     - name: deployment-check
       run: |
         ./roxctl --insecure-skip-tls-verify deployment check --endpoint ${{ env.ROX_CENTRAL_ADDRESS }} -f ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml 2>&1 | tee deployment_check.txt
