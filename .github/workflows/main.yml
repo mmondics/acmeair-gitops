@@ -33,36 +33,6 @@ jobs:
     environment: openshift
     
     steps:
-    - name: Check if secrets exists
-      uses: actions/github-script@v3
-      with:
-        script: |
-          const secrets = {
-            QUAY_PASSWORD: `${{ secrets.QUAY_PASSWORD }}`,
-            REDHAT_PASSWORD: `${{ secrets.REDHAT_PASSWORD }}`,
-          };
-
-          const missingSecrets = Object.entries(secrets).filter(([ name, value ]) => {
-            if (value.length === 0) {
-              core.warning(`Secret "${name}" is not set`);
-              return true;
-            }
-            core.info(`✔️ Secret "${name}" is set`);
-            return false;
-
-          });
-
-          if (missingSecrets.length > 0) {
-            core.setFailed(`❌ At least one required secret is not set in the repository. \n` +
-              "You can add it using:\n" +
-              "GitHub UI: https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository \n" +
-              "GitHub CLI: https://cli.github.com/manual/gh_secret_set \n" +
-              "Also, refer to https://github.com/redhat-actions/oc-login#getting-started-with-the-action-or-see-example");
-          }
-          else {
-            core.info(`✅ All the required secrets are set`);
-          }
-
     - name: Checkout
       id: checkout
       # checkout@v2 should be used until s390x runner version is updated
@@ -95,36 +65,6 @@ jobs:
     environment: openshift
 
     steps:
-    - name: Check if secrets exists
-      uses: actions/github-script@v3
-      with:
-        script: |
-          const secrets = {
-            QUAY_PASSWORD: `${{ secrets.QUAY_PASSWORD }}`,
-            REDHAT_PASSWORD: `${{ secrets.REDHAT_PASSWORD }}`,
-          };
-
-          const missingSecrets = Object.entries(secrets).filter(([ name, value ]) => {
-            if (value.length === 0) {
-              core.warning(`Secret "${name}" is not set`);
-              return true;
-            }
-            core.info(`✔️ Secret "${name}" is set`);
-            return false;
-
-          });
-
-          if (missingSecrets.length > 0) {
-            core.setFailed(`❌ At least one required secret is not set in the repository. \n` +
-              "You can add it using:\n" +
-              "GitHub UI: https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository \n" +
-              "GitHub CLI: https://cli.github.com/manual/gh_secret_set \n" +
-              "Also, refer to https://github.com/redhat-actions/oc-login#getting-started-with-the-action-or-see-example");
-          }
-          else {
-            core.info(`✅ All the required secrets are set`);
-          }
-
     - name: Checkout
       id: checkout
       # checkout@v2 should be used until s390x runner is updated
