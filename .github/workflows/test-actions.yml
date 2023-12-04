@@ -27,7 +27,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.PAT }}
+          # token: ${{ secrets.PAT }}
           commit-message: Update container image to ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
           committer: GitHub <noreply@github.com>
           author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
