@@ -158,7 +158,7 @@ jobs:
       - name: push code to DevSecOps branch
         run: git push origin HEAD:DevSecOps
       - name: create a PR with the image changed
-        run: gh pr create --base main --head DevSecOps
+        run: gh pr create --base main --head DevSecOps --title "update deploy-acmeair-mainservice-java.yaml via GitHub Actions" --body "Using image manfest ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}"
 
   acs-image-scan: 
     name: Scan container manifest with Red Hat Advanced Cluster Security
