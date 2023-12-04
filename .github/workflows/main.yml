@@ -48,12 +48,19 @@ jobs:
         mvn clean package -f ./acmeair/source/acmeair-mainservice-java/pom.xml
   
     # build the container image for s390x
-    - name: podman build
-      run: |
-        podman version
-        podman login registry.redhat.io -u ${{ env.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
-        podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java
-
+    #- name: podman build
+    #  run: |
+    #    podman version
+    #    podman login registry.redhat.io -u ${{ env.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
+    #    podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java
+    - name: buildah build
+      uses: redhat-actions/buildah-build@v2
+      with:
+        image: ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}
+        tags: ${{ env.Z_IMAGE_TAGS }}
+        containerfiles: |
+          ./acmeair/source/acmeair-mainservice-java/Dockerfile
+  
     # push the s390x container image to repo
     - name: Push to Registry 
       id: push-to-registry
@@ -85,11 +92,18 @@ jobs:
         mvn clean package -f ./acmeair/source/acmeair-mainservice-java/pom.xml
 
     # build the container image for amd64
-    - name: podman build
-      run: |
-        podman version
-        podman login registry.redhat.io -u ${{ env.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
-        podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java
+    # - name: podman build
+    #   run: |
+    #     podman version
+    #     podman login registry.redhat.io -u ${{ env.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
+    #     podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java
+    - name: buildah build
+      uses: redhat-actions/buildah-build@v2
+      with:
+        image: ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}
+        tags: ${{ env.X_IMAGE_TAGS }}
+        containerfiles: |
+          ./acmeair/source/acmeair-mainservice-java/Dockerfile
 
     # push the amd64 container image to repo
     - name: Push to Registry 
