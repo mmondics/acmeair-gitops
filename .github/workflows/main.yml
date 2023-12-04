@@ -40,6 +40,7 @@ jobs:
     - name: mvn clean package
       run: |
         export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk*/jre
+        echo $JAVA_HOME
         mvn clean package -f ./acmeair/source/acmeair-mainservice-java/pom.xml
   
     # build the container image for s390x
