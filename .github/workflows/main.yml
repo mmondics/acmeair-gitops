@@ -60,7 +60,7 @@ jobs:
         image: ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}
         tags: ${{ env.Z_IMAGE_TAGS }}
         containerfiles: |
-          ./acmeair/source/acmeair-mainservice-java/Dockerfile
+          ./Dockerfile
   
     # push the s390x container image to repo
     - name: Push to Registry 
@@ -105,7 +105,7 @@ jobs:
         image: ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}
         tags: ${{ env.X_IMAGE_TAGS }}
         containerfiles: |
-          ./acmeair/source/acmeair-mainservice-java/Dockerfile
+          ./Dockerfile
 
     # push the amd64 container image to repo
     - name: Push to Registry 
