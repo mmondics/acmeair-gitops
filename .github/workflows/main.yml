@@ -207,6 +207,8 @@ jobs:
     needs: acs-image-scan
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
@@ -215,7 +217,7 @@ jobs:
           committer: GitHub <noreply@github.com>
           author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
           signoff: false
-          branch: main
+          branch: devsecops-update
           delete-branch: false
           title: 'Update container image to ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}'
           body: |
