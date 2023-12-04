@@ -17,6 +17,7 @@ env:
   MANIFEST_NAME: acmeair-mainservice-java-manifest
   SMTP_USERNAME: ibmwashingtonsystemscenter@gmail.com
   SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+  GH_TOKEN: ${{ github.token }}
   
 on:
   push:
