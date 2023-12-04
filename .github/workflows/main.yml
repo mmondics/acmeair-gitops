@@ -65,8 +65,8 @@ jobs:
 
     - name: Checkout
       id: checkout
-      # uses: actions/checkout@v2
-      uses: actions/checkout@v4
+      # checkout@v2 should be used until s390x runner version is updated
+      uses: actions/checkout@v2
 
     - name: mvn clean package
       run: |
@@ -127,8 +127,8 @@ jobs:
 
     - name: Checkout
       id: checkout
-      #uses: actions/checkout@v2
-      uses: actions/checkout@v4
+      # checkout@v2 should be used until s390x runner is updated
+      uses: actions/checkout@v2
 
     - name: mvn clean package
       run: |
