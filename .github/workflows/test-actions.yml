@@ -1,4 +1,4 @@
-name: Build, Scan and Rollout Multiarchitecture Containers
+name: test-actions
 
 env: 
   QUAY_USERNAME: mmondics
