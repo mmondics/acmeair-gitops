@@ -156,6 +156,8 @@ jobs:
         run: git fetch origin DevSecOps
       - name: push code to DevSecOps branch
         run: git push origin HEAD:DevSecOps
+      - name: create a PR with the image changed
+        run: gh pr create --base main --head DevSecOps
 
   acs-image-scan: 
     name: Scan container manifest with Red Hat Advanced Cluster Security
