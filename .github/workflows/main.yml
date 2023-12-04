@@ -39,8 +39,8 @@ jobs:
     # build the app package for s390x
     - name: mvn clean package
       run: |
-        export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk*/jre && mvn clean package -f ./acmeair/source/acmeair-mainservice-java/pom.xml
-        echo $JAVA_HOME
+        export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.382.b05-2.fc37.s390x/jre
+        mvn clean package -f ./acmeair/source/acmeair-mainservice-java/pom.xml
   
     # build the container image for s390x
     - name: podman build
@@ -74,7 +74,7 @@ jobs:
     # build the app package for amd64
     - name: mvn clean package
       run: |
-        export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk*/jre
+        export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.382.b05-2.fc37.x86_64/jre
         mvn clean package -f ./acmeair/source/acmeair-mainservice-java/pom.xml
 
     # build the container image for amd64
