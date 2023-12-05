@@ -3,6 +3,7 @@ name: Build, Scan and Rollout Multiarchitecture Containers
 env: 
   QUAY_USERNAME: mmondics
   # QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+  ROX_API_TOKEN: ${{ secrets.ROX_API_TOKEN }}
   QUAY_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
   REDHAT_USERNAME: mmondics
   REDHAT_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
