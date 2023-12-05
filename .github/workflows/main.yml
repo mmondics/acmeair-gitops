@@ -122,14 +122,14 @@ jobs:
         run: podman manifest create ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
       - name: pull new container images
         run: |
-          podman pull ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }}
-          podman pull ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }}
+          podman pull --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }}
+          podman pull --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }}
       - name: add container images to manifest
         run: |
-          podman manifest add ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }}
-          podman manifest add ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }}
+          podman manifest add --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }}
+          podman manifest add --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }}
       - name: push manifest list
-        run: podman manifest push ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
+        run: podman manifest push --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
   
   update-app-yaml:
     name: update acmeair mainservice application YAML to use new image manifest
