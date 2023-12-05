@@ -133,7 +133,7 @@ jobs:
   
   update-app-yaml:
     name: update acmeair mainservice application YAML to use new image manifest
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, s390x]
     needs: create-manifest
     environment: openshift
     
