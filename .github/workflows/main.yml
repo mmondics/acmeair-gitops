@@ -116,7 +116,8 @@ jobs:
     # Create image manifest, add the s390x and amd64 container images, then push the manifest to the repository.
     steps:
       - name: podman login
-        run: podman login ${{ env.IMAGE_REGISTRY }} -u ${{ env.QUAY_USERNAME }} -p ${{ env.QUAY_PASSWORD }}
+        run: |
+          podman login --tls-verify=false ${{ env.IMAGE_REGISTRY }} -u ${{ env.QUAY_USERNAME }} -p ${{ env.QUAY_PASSWORD }}
       - name: create manifest list
         run: podman manifest create ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
       - name: pull new container images
