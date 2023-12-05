@@ -11,8 +11,8 @@ env:
   X_IMAGE_TAGS: amd64-${{ github.sha }}
   MANIFEST_IMAGE_TAG: manifest-${{ github.sha }}
   ROX_CENTRAL_ADDRESS: https://central-stackrox.apps.atsocpd2.dmz:443
-  #ROX_API_TOKEN: ${{ secrets.ROX_API_TOKEN }}
-  IMAGE_REGISTRY: quay.io/mmondics
+  #IMAGE_REGISTRY: quay.io/mmondics
+  IMAGE_REGISTRY: quay-registry-quay-openshift-operators.apps.atsocppa.dmz/mmondics
   APP_NAME: acmeair-mainservice-java
   MANIFEST_NAME: acmeair-mainservice-java-manifest
   SMTP_USERNAME: ibmwashingtonsystemscenter@gmail.com
@@ -64,6 +64,7 @@ jobs:
         registry: ${{ env.IMAGE_REGISTRY }}
         username: ${{ env.QUAY_USERNAME }}
         password: ${{ env.QUAY_PASSWORD }}
+        tls-verify: false
 
   amd64-build-and-push: 
     name: amd64 build and push to quay.io
@@ -101,10 +102,11 @@ jobs:
         registry: ${{ env.IMAGE_REGISTRY }}
         username: ${{ env.QUAY_USERNAME }}
         password: ${{ env.QUAY_PASSWORD }}
+        tls-verify: false
 
   create-manifest:
     name: combine amd64 and s390x container images into a single manifest and push to quay.io
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, s390x]
     needs:
       - s390x-build-and-push
       - amd64-build-and-push
