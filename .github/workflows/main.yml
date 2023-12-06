@@ -32,7 +32,7 @@ on:
 jobs:
   s390x-build-and-push: 
     name: s390x build and push to quay.io
-    runs-on: [self-hosted, linux, s390x]
+    runs-on: [self-hosted, linux, s390x, native]
     environment: openshift
     
     steps:
@@ -70,7 +70,7 @@ jobs:
 
   amd64-build-and-push: 
     name: amd64 build and push to quay.io
-    runs-on: [self-hosted, linux, x64]
+    runs-on: [self-hosted, linux, x64, native]
     environment: openshift
 
     steps:
