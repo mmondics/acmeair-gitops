@@ -2,7 +2,9 @@ name: Build, Scan and Rollout Multiarchitecture Containers
 
 env: 
   QUAY_USERNAME: mmondics
-  QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+  # QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+  ROX_API_TOKEN: ${{ secrets.ROX_API_TOKEN }}
+  QUAY_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
   REDHAT_USERNAME: mmondics
   REDHAT_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
   GIT_USERNAME: mmondics
@@ -11,8 +13,8 @@ env:
   X_IMAGE_TAGS: amd64-${{ github.sha }}
   MANIFEST_IMAGE_TAG: manifest-${{ github.sha }}
   ROX_CENTRAL_ADDRESS: https://central-stackrox.apps.atsocpd2.dmz:443
-  #ROX_API_TOKEN: ${{ secrets.ROX_API_TOKEN }}
-  IMAGE_REGISTRY: quay.io/mmondics
+  #IMAGE_REGISTRY: quay.io/mmondics
+  IMAGE_REGISTRY: quay-registry-quay-openshift-operators.apps.atsocppa.dmz/mmondics
   APP_NAME: acmeair-mainservice-java
   MANIFEST_NAME: acmeair-mainservice-java-manifest
   SMTP_USERNAME: ibmwashingtonsystemscenter@gmail.com
@@ -64,6 +66,7 @@ jobs:
         registry: ${{ env.IMAGE_REGISTRY }}
         username: ${{ env.QUAY_USERNAME }}
         password: ${{ env.QUAY_PASSWORD }}
+        tls-verify: false
 
   amd64-build-and-push: 
     name: amd64 build and push to quay.io
@@ -101,10 +104,11 @@ jobs:
         registry: ${{ env.IMAGE_REGISTRY }}
         username: ${{ env.QUAY_USERNAME }}
         password: ${{ env.QUAY_PASSWORD }}
+        tls-verify: false
 
   create-manifest:
     name: combine amd64 and s390x container images into a single manifest and push to quay.io
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, s390x]
     needs:
       - s390x-build-and-push
       - amd64-build-and-push
@@ -113,29 +117,30 @@ jobs:
     # Create image manifest, add the s390x and amd64 container images, then push the manifest to the repository.
     steps:
       - name: podman login
-        run: podman login ${{ env.IMAGE_REGISTRY }} -u ${{ env.QUAY_USERNAME }} -p ${{ env.QUAY_PASSWORD }}
+        run: |
+          podman login --tls-verify=false ${{ env.IMAGE_REGISTRY }} -u ${{ env.QUAY_USERNAME }} -p ${{ env.QUAY_PASSWORD }}
       - name: create manifest list
         run: podman manifest create ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
       - name: pull new container images
         run: |
-          podman pull ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }}
-          podman pull ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }}
+          podman pull --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }}
+          podman pull --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }}
       - name: add container images to manifest
         run: |
-          podman manifest add ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }}
-          podman manifest add ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }}
+          podman manifest add --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }}
+          podman manifest add --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }}
       - name: push manifest list
-        run: podman manifest push ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
+        run: podman manifest push --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
   
   update-app-yaml:
     name: update acmeair mainservice application YAML to use new image manifest
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, s390x]
     needs: create-manifest
     environment: openshift
     
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
         with:
           ref: DevSecOps
       # update image name in deployment YAML
