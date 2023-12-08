@@ -3,7 +3,7 @@ kind: Route
 metadata:
   name: acmeair-main-route
 spec:
-  host: acmeair-rhacm.apps.x2pn.dmz
+  host: acmeair-rhacm.apps.atsocppa.dmz
   path: /acmeair
   to:
     kind: Service
