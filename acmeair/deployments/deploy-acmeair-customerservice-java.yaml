@@ -23,8 +23,8 @@ spec:
           - containerPort: 9443
         imagePullPolicy: Always
         resources:
-#          limits:
-#            cpu: '4'
+          limits:
+            cpu: '4'
           requests:
             cpu: '2'
         env:
