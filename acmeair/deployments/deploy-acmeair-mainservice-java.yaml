@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: acmeair-mainservice-java
-        image: quay.io/mmondics/acmeair-mainservice-java:manifest-micro4
+        image: quay.io/mmondics/acmeair-mainservice-java:manifest-5.0
         ports:
         - containerPort: 9080
         - containerPort: 9443
