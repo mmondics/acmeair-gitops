@@ -21,8 +21,7 @@ env:
   SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
   GH_TOKEN: ${{ github.token }}
   
-on:
-  on = "repository_dispatch"
+on: "repository_dispatch"
   # push:
   #   paths:
   #     - acmeair/source/acmeair-mainservice-java/src/main/webapp/*
