@@ -22,11 +22,12 @@ env:
   GH_TOKEN: ${{ github.token }}
   
 on:
-  push:
-    paths:
-      - acmeair/source/acmeair-mainservice-java/src/main/webapp/*
-    branches:
-      - DevSecOps
+  on = "repository_dispatch"
+  # push:
+  #   paths:
+  #     - acmeair/source/acmeair-mainservice-java/src/main/webapp/*
+  #   branches:
+  #     - DevSecOps
 #on: workflow_dispatch
 
 jobs:
