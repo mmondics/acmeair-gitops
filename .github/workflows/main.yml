@@ -36,7 +36,7 @@ jobs:
     name: s390x build and push to Quay
     runs-on: [self-hosted, linux, s390x, native]
     environment: openshift
-    
+
     steps:
     - name: Checkout
       id: checkout
