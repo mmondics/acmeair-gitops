@@ -41,177 +41,177 @@ jobs:
     - name: Checkout
       id: checkout
       # checkout@v2 should be used until s390x runner version is updated
-      uses: actions/checkout@v1
-      with:
-        ref: DevSecOps
-
-    # build the app package for s390x
-    - name: mvn clean package
-      run: |
-        mvn clean package -f ./acmeair/source/acmeair-mainservice-java/pom.xml
-
-    # build the container image for s390x
-    - name: podman build
-      run: |
-        podman version
-        podman login registry.redhat.io -u ${{ env.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
-        podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java
-
-    # push the s390x container image to repo
-    - name: Push to Registry 
-      id: push-to-registry
-      uses: redhat-actions/push-to-registry@v2
-      with:
-        image: ${{ env.APP_NAME }}
-        tags: ${{ env.Z_IMAGE_TAGS }}
-        registry: ${{ env.IMAGE_REGISTRY }}
-        username: ${{ env.QUAY_USERNAME }}
-        password: ${{ env.QUAY_PASSWORD }}
-        tls-verify: false
-
-  amd64-build-and-push: 
-    name: amd64 build and push to Quay
-    runs-on: [self-hosted, linux, x64, native]
-    environment: openshift
-
-    steps:
-    - name: Checkout
-      id: checkout
-      # checkout@v2 should be used until s390x runner is updated
       uses: actions/checkout@v2
       with:
         ref: DevSecOps
 
-    # build the app package for amd64
-    - name: mvn clean package
-      run: |
-        mvn clean package -f ./acmeair/source/acmeair-mainservice-java/pom.xml
+  #   # build the app package for s390x
+  #   - name: mvn clean package
+  #     run: |
+  #       mvn clean package -f ./acmeair/source/acmeair-mainservice-java/pom.xml
 
-    # build the container image for amd64
-    - name: podman build
-      run: |
-        podman version
-        podman login registry.redhat.io -u ${{ env.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
-        podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java
+  #   # build the container image for s390x
+  #   - name: podman build
+  #     run: |
+  #       podman version
+  #       podman login registry.redhat.io -u ${{ env.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
+  #       podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java
 
-    # push the amd64 container image to repo
-    - name: Push to Registry 
-      id: push-to-registry
-      uses: redhat-actions/push-to-registry@v2
-      with:
-        image: ${{ env.APP_NAME }}
-        tags: ${{ env.X_IMAGE_TAGS }}
-        registry: ${{ env.IMAGE_REGISTRY }}
-        username: ${{ env.QUAY_USERNAME }}
-        password: ${{ env.QUAY_PASSWORD }}
-        tls-verify: false
+  #   # push the s390x container image to repo
+  #   - name: Push to Registry 
+  #     id: push-to-registry
+  #     uses: redhat-actions/push-to-registry@v2
+  #     with:
+  #       image: ${{ env.APP_NAME }}
+  #       tags: ${{ env.Z_IMAGE_TAGS }}
+  #       registry: ${{ env.IMAGE_REGISTRY }}
+  #       username: ${{ env.QUAY_USERNAME }}
+  #       password: ${{ env.QUAY_PASSWORD }}
+  #       tls-verify: false
 
-  create-manifest:
-    name: combine amd64 and s390x container images into a single manifest and push to Quay
-    runs-on: [self-hosted, linux, s390x, native]
-    needs:
-      - s390x-build-and-push
-      - amd64-build-and-push
-    environment: openshift
+  # amd64-build-and-push: 
+  #   name: amd64 build and push to Quay
+  #   runs-on: [self-hosted, linux, x64, native]
+  #   environment: openshift
+
+  #   steps:
+  #   - name: Checkout
+  #     id: checkout
+  #     # checkout@v2 should be used until s390x runner is updated
+  #     uses: actions/checkout@v2
+  #     with:
+  #       ref: DevSecOps
+
+  #   # build the app package for amd64
+  #   - name: mvn clean package
+  #     run: |
+  #       mvn clean package -f ./acmeair/source/acmeair-mainservice-java/pom.xml
+
+  #   # build the container image for amd64
+  #   - name: podman build
+  #     run: |
+  #       podman version
+  #       podman login registry.redhat.io -u ${{ env.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
+  #       podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java
+
+  #   # push the amd64 container image to repo
+  #   - name: Push to Registry 
+  #     id: push-to-registry
+  #     uses: redhat-actions/push-to-registry@v2
+  #     with:
+  #       image: ${{ env.APP_NAME }}
+  #       tags: ${{ env.X_IMAGE_TAGS }}
+  #       registry: ${{ env.IMAGE_REGISTRY }}
+  #       username: ${{ env.QUAY_USERNAME }}
+  #       password: ${{ env.QUAY_PASSWORD }}
+  #       tls-verify: false
+
+  # create-manifest:
+  #   name: combine amd64 and s390x container images into a single manifest and push to Quay
+  #   runs-on: [self-hosted, linux, s390x, native]
+  #   needs:
+  #     - s390x-build-and-push
+  #     - amd64-build-and-push
+  #   environment: openshift
     
-    # Create image manifest, add the s390x and amd64 container images, then push the manifest to the repository.
-    steps:
-      - name: podman login
-        run: |
-          podman login --tls-verify=false ${{ env.IMAGE_REGISTRY }} -u ${{ env.QUAY_USERNAME }} -p ${{ env.QUAY_PASSWORD }}
-      - name: create manifest list
-        run: podman manifest create ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
-      - name: pull new container images
-        run: |
-          podman pull --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }}
-          podman pull --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }}
-      - name: add container images to manifest
-        run: |
-          podman manifest add --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }}
-          podman manifest add --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }}
-      - name: push manifest list
-        run: podman manifest push --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
+  #   # Create image manifest, add the s390x and amd64 container images, then push the manifest to the repository.
+  #   steps:
+  #     - name: podman login
+  #       run: |
+  #         podman login --tls-verify=false ${{ env.IMAGE_REGISTRY }} -u ${{ env.QUAY_USERNAME }} -p ${{ env.QUAY_PASSWORD }}
+  #     - name: create manifest list
+  #       run: podman manifest create ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
+  #     - name: pull new container images
+  #       run: |
+  #         podman pull --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }}
+  #         podman pull --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }}
+  #     - name: add container images to manifest
+  #       run: |
+  #         podman manifest add --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }}
+  #         podman manifest add --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }}
+  #     - name: push manifest list
+  #       run: podman manifest push --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
   
-  update-app-yaml:
-    name: update acmeair mainservice application YAML to use new image manifest
-    runs-on: ubuntu-latest
-    needs: create-manifest
-    environment: openshift
+  # update-app-yaml:
+  #   name: update acmeair mainservice application YAML to use new image manifest
+  #   runs-on: ubuntu-latest
+  #   needs: create-manifest
+  #   environment: openshift
     
-    steps:
-      - name: checkout
-        uses: actions/checkout@v3
-        with:
-          ref: DevSecOps
-      # update image name in deployment YAML
-      # probably should replace this with https://github.com/marketplace/actions/find-and-replace
-      - name: replace container image in YAML
-        run: |
-          yq -i ".spec.template.spec.containers.0.image = \"${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}\"" ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml
-      - name: git config
-        run: |
-          git config --global user.email ${{ env.GIT_EMAIL }}
-          git config --global user.name ${{ env.GIT_USERNAME }}
-      - name: check for changes
-        run: git status
-      - name: stage changed files
-        run: git add .
-      - name: commit changed files
-        run: git commit -m "update deploy-acmeair-mainservice-java.yaml via GitHub Actions"
-      - name: fetch from DevSecOps
-        run: git fetch origin DevSecOps
-      - name: push code to DevSecOps branch
-        run: git push origin HEAD:DevSecOps
-      - name: create a PR with the image changed
-        run: gh pr create --base main --head DevSecOps --title "update deploy-acmeair-mainservice-java.yaml via GitHub Actions" --body "Using image manfest ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}"
+  #   steps:
+  #     - name: checkout
+  #       uses: actions/checkout@v3
+  #       with:
+  #         ref: DevSecOps
+  #     # update image name in deployment YAML
+  #     # probably should replace this with https://github.com/marketplace/actions/find-and-replace
+  #     - name: replace container image in YAML
+  #       run: |
+  #         yq -i ".spec.template.spec.containers.0.image = \"${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}\"" ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml
+  #     - name: git config
+  #       run: |
+  #         git config --global user.email ${{ env.GIT_EMAIL }}
+  #         git config --global user.name ${{ env.GIT_USERNAME }}
+  #     - name: check for changes
+  #       run: git status
+  #     - name: stage changed files
+  #       run: git add .
+  #     - name: commit changed files
+  #       run: git commit -m "update deploy-acmeair-mainservice-java.yaml via GitHub Actions"
+  #     - name: fetch from DevSecOps
+  #       run: git fetch origin DevSecOps
+  #     - name: push code to DevSecOps branch
+  #       run: git push origin HEAD:DevSecOps
+  #     - name: create a PR with the image changed
+  #       run: gh pr create --base main --head DevSecOps --title "update deploy-acmeair-mainservice-java.yaml via GitHub Actions" --body "Using image manfest ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}"
 
-  acs-image-scan: 
-    name: Scan container manifest with Red Hat Advanced Cluster Security
-    runs-on: [self-hosted, linux, s390x]
-    environment: openshift
-    needs: update-app-yaml
-    continue-on-error: true
+  # acs-image-scan: 
+  #   name: Scan container manifest with Red Hat Advanced Cluster Security
+  #   runs-on: [self-hosted, linux, s390x]
+  #   environment: openshift
+  #   needs: update-app-yaml
+  #   continue-on-error: true
     
-    # Image scan is initated on self-hosted IBM Z runner.
-    # Image scan is performed by ACS server running on IBM Z.
-    steps:
-    - name: install roxctl cli        
-      run: | 
-        curl -O https://mirror.openshift.com/pub/rhacs/assets/4.3.0/bin/Linux/roxctl-s390x
-        chmod +x roxctl-s390x
-        ln -s roxctl-s390x roxctl
-      continue-on-error: true
-    - name: deployment-check
-      run: |
-        ./roxctl --insecure-skip-tls-verify deployment check --endpoint ${{ env.ROX_CENTRAL_ADDRESS }} -f ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml 2>&1 | tee deployment_check.txt
-    - name: image-scan
-      run: |
-        ./roxctl --insecure-skip-tls-verify image scan --endpoint ${{ env.ROX_CENTRAL_ADDRESS }} --image ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} 2>&1 | tee image_scan.txt
-    - name: image-check
-      run: |
-        ./roxctl --insecure-skip-tls-verify image check --endpoint ${{ env.ROX_CENTRAL_ADDRESS }} --image ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} 2>&1 | tee image_check.txt
+  #   # Image scan is initated on self-hosted IBM Z runner.
+  #   # Image scan is performed by ACS server running on IBM Z.
+  #   steps:
+  #   - name: install roxctl cli        
+  #     run: | 
+  #       curl -O https://mirror.openshift.com/pub/rhacs/assets/4.3.0/bin/Linux/roxctl-s390x
+  #       chmod +x roxctl-s390x
+  #       ln -s roxctl-s390x roxctl
+  #     continue-on-error: true
+  #   - name: deployment-check
+  #     run: |
+  #       ./roxctl --insecure-skip-tls-verify deployment check --endpoint ${{ env.ROX_CENTRAL_ADDRESS }} -f ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml 2>&1 | tee deployment_check.txt
+  #   - name: image-scan
+  #     run: |
+  #       ./roxctl --insecure-skip-tls-verify image scan --endpoint ${{ env.ROX_CENTRAL_ADDRESS }} --image ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} 2>&1 | tee image_scan.txt
+  #   - name: image-check
+  #     run: |
+  #       ./roxctl --insecure-skip-tls-verify image check --endpoint ${{ env.ROX_CENTRAL_ADDRESS }} --image ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} 2>&1 | tee image_check.txt
     
-    # Send results of security scans through email.
-    - name: Send email 
-      uses: dawidd6/action-send-mail@v3
-      with:
-        server_address: smtp.gmail.com
-        server_port: 465
-        secure: true
-        username: ${{ env.SMTP_USERNAME }}
-        password: ${{ env.SMTP_PASSWORD }}
-        # Subject of mail message
-        subject: Security Scan for image ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
-        to: matt.mondics@ibm.com
-        from: Matt Mondics <matt.mondics@ibm.com>
-        attachments: deployment_check.txt,image_scan.txt,image_check.txt
-        # Body of mail message (might be a filename prefixed with file:// to read from)
-        body: |
-          Red Hat Advanced Cluster Security scans for image:
-          ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
+  #   # Send results of security scans through email.
+  #   - name: Send email 
+  #     uses: dawidd6/action-send-mail@v3
+  #     with:
+  #       server_address: smtp.gmail.com
+  #       server_port: 465
+  #       secure: true
+  #       username: ${{ env.SMTP_USERNAME }}
+  #       password: ${{ env.SMTP_PASSWORD }}
+  #       # Subject of mail message
+  #       subject: Security Scan for image ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
+  #       to: matt.mondics@ibm.com
+  #       from: Matt Mondics <matt.mondics@ibm.com>
+  #       attachments: deployment_check.txt,image_scan.txt,image_check.txt
+  #       # Body of mail message (might be a filename prefixed with file:// to read from)
+  #       body: |
+  #         Red Hat Advanced Cluster Security scans for image:
+  #         ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
           
-          See attachments for deployment check, image check, and image scan.
+  #         See attachments for deployment check, image check, and image scan.
           
-          Update the application code to remediate security findings described in the attached files.
+  #         Update the application code to remediate security findings described in the attached files.
           
-          Per IBM security practices, failed security scans do not prevent commits to development branches, but they will prevent merging to main branches.
+  #         Per IBM security practices, failed security scans do not prevent commits to development branches, but they will prevent merging to main branches.
