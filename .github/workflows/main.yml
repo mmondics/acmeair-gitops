@@ -2,7 +2,8 @@ name: Build, Scan and Rollout Multiarchitecture Containers
 
 env: 
   QUAY_USERNAME: mmondics
-  QUAY_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
+  QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+  # QUAY_PASSWORD: ${{ secrets.REDHAT_PASSWORD }} #use for on-prem quay
   REDHAT_USERNAME: mmondics
   REDHAT_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
   GIT_USERNAME: mmondics
