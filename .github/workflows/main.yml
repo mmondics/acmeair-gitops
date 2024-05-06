@@ -21,13 +21,13 @@ env:
   MANIFEST_IMAGE_TAG: manifest-${{ github.sha }}
   IMAGE_REGISTRY: quay-registry-quay-openshift-operators.apps.atsocppa.dmz/mmondics
   
-# on:
-#   push:
-#     paths:
-#       - acmeair/source/acmeair-mainservice-java/src/main/webapp/*
-#     branches:
-#       - DevSecOps
-on: workflow_dispatch
+on:
+  push:
+    paths:
+      - acmeair/source/acmeair-mainservice-java/src/main/webapp/*
+    branches:
+      - DevSecOps
+# on: workflow_dispatch
 
 jobs:
   s390x-build-and-push: 
