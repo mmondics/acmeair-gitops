@@ -37,18 +37,23 @@ jobs:
     runs-on: [self-hosted, linux, s390x, native]
     environment: openshift
 
-    steps:
-    - name: Checkout
-      id: checkout
-      # checkout@v2 should be used until s390x runner version is updated
-      uses: actions/checkout@v2
-      with:
-        ref: DevSecOps
+    # steps:
+    # - name: Checkout
+    #   id: checkout
+    #   # checkout@v2 should be used until s390x runner version is updated
+    #   uses: actions/checkout@v2
+    #   with:
+    #     ref: DevSecOps
 
-  #   # build the app package for s390x
-  #   - name: mvn clean package
-  #     run: |
-  #       mvn clean package -f ./acmeair/source/acmeair-mainservice-java/pom.xml
+    # build the app package for s390x
+    - name: hello
+      run: |
+        echo "hello"
+
+    # # build the app package for s390x
+    # - name: mvn clean package
+    #   run: |
+    #     mvn clean package -f ./acmeair/source/acmeair-mainservice-java/pom.xml
 
   #   # build the container image for s390x
   #   - name: podman build
