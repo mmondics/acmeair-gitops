@@ -41,7 +41,7 @@ jobs:
     - name: Checkout
       id: checkout
       # checkout@v2 should be used until s390x runner version is updated
-      uses: actions/checkout@v2
+      uses: actions/checkout@v1
       with:
         ref: DevSecOps
 
@@ -49,7 +49,7 @@ jobs:
     - name: mvn clean package
       run: |
         mvn clean package -f ./acmeair/source/acmeair-mainservice-java/pom.xml
-  
+
     # build the container image for s390x
     - name: podman build
       run: |
