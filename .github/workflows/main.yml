@@ -2,32 +2,32 @@ name: Build, Scan and Rollout Multiarchitecture Containers
 
 env: 
   QUAY_USERNAME: mmondics
-  # QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
-  ROX_API_TOKEN: ${{ secrets.ROX_API_TOKEN }}
   QUAY_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
   REDHAT_USERNAME: mmondics
   REDHAT_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
   GIT_USERNAME: mmondics
   GIT_EMAIL: matt.mondics@ibm.com
-  Z_IMAGE_TAGS: s390x-${{ github.sha }}
-  X_IMAGE_TAGS: amd64-${{ github.sha }}
-  MANIFEST_IMAGE_TAG: manifest-${{ github.sha }}
-  ROX_CENTRAL_ADDRESS: https://central-stackrox.apps.atsocpd2.dmz:443
-  #IMAGE_REGISTRY: quay.io/mmondics
-  IMAGE_REGISTRY: quay-registry-quay-openshift-operators.apps.atsocppa.dmz/mmondics
-  APP_NAME: acmeair-mainservice-java
-  MANIFEST_NAME: acmeair-mainservice-java-manifest
   SMTP_USERNAME: ibmwashingtonsystemscenter@gmail.com
   SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
   GH_TOKEN: ${{ github.token }}
+
+  ROX_CENTRAL_ADDRESS: https://central-stackrox.apps.atsocpd1.dmz:443
+  ROX_API_TOKEN: ${{ secrets.ROX_API_TOKEN }}
+
+  APP_NAME: acmeair-mainservice-java
+  MANIFEST_NAME: acmeair-mainservice-java-manifest
+  Z_IMAGE_TAGS: s390x-${{ github.sha }}
+  X_IMAGE_TAGS: amd64-${{ github.sha }}
+  MANIFEST_IMAGE_TAG: manifest-${{ github.sha }}
+  IMAGE_REGISTRY: quay-registry-quay-openshift-operators.apps.atsocppa.dmz/mmondics
   
-on:
-  push:
-    paths:
-      - acmeair/source/acmeair-mainservice-java/src/main/webapp/*
-    branches:
-      - DevSecOps
-#on: workflow_dispatch
+# on:
+#   push:
+#     paths:
+#       - acmeair/source/acmeair-mainservice-java/src/main/webapp/*
+#     branches:
+#       - DevSecOps
+on: workflow_dispatch
 
 jobs:
   s390x-build-and-push: 
@@ -145,7 +145,7 @@ jobs:
       # probably should replace this with https://github.com/marketplace/actions/find-and-replace
       - name: replace container image in YAML
         run: |
-          sed -i '21s@.*@        image: ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}@' ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml
+          yq -i ".spec.template.spec.containers.0.image = \"${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}\"" ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml
       - name: git config
         run: |
           git config --global user.email ${{ env.GIT_EMAIL }}
