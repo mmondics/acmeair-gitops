@@ -2,44 +2,45 @@ name: Build, Scan and Rollout Multiarchitecture Containers
 
 env: 
   QUAY_USERNAME: mmondics
-  # QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
-  ROX_API_TOKEN: ${{ secrets.ROX_API_TOKEN }}
-  QUAY_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
+  QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+  # QUAY_PASSWORD: ${{ secrets.REDHAT_PASSWORD }} #use for on-prem quay
   REDHAT_USERNAME: mmondics
   REDHAT_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
   GIT_USERNAME: mmondics
   GIT_EMAIL: matt.mondics@ibm.com
-  Z_IMAGE_TAGS: s390x-${{ github.sha }}
-  X_IMAGE_TAGS: amd64-${{ github.sha }}
-  MANIFEST_IMAGE_TAG: manifest-${{ github.sha }}
-  ROX_CENTRAL_ADDRESS: https://central-stackrox.apps.atsocpd2.dmz:443
-  #IMAGE_REGISTRY: quay.io/mmondics
-  IMAGE_REGISTRY: quay-registry-quay-openshift-operators.apps.atsocppa.dmz/mmondics
-  APP_NAME: acmeair-mainservice-java
-  MANIFEST_NAME: acmeair-mainservice-java-manifest
   SMTP_USERNAME: ibmwashingtonsystemscenter@gmail.com
   SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
   GH_TOKEN: ${{ github.token }}
-  
-on: "repository_dispatch"
-  # push:
-  #   paths:
-  #     - acmeair/source/acmeair-mainservice-java/src/main/webapp/*
-  #   branches:
-  #     - DevSecOps
-#on: workflow_dispatch
+
+  ROX_CENTRAL_ADDRESS: https://central-stackrox.apps.atsocpd1.dmz:443
+  ROX_API_TOKEN: ${{ secrets.ROX_API_TOKEN }}
+
+  APP_NAME: acmeair-mainservice-java
+  MANIFEST_NAME: acmeair-mainservice-java-manifest
+  Z_IMAGE_TAGS: s390x-${{ github.sha }}
+  X_IMAGE_TAGS: amd64-${{ github.sha }}
+  MANIFEST_IMAGE_TAG: manifest-${{ github.sha }}
+  # IMAGE_REGISTRY: quay-registry-quay-openshift-operators.apps.atsocppa.dmz/mmondics
+  IMAGE_REGISTRY: quay.io/mmondics
+
+on:
+  push:
+    paths:
+      - acmeair/source/acmeair-mainservice-java/src/main/webapp/*
+    branches:
+      - DevSecOps
+# on: workflow_dispatch
 
 jobs:
   s390x-build-and-push: 
     name: s390x build and push to Quay
     runs-on: [self-hosted, linux, s390x, native]
     environment: openshift
-    
+
     steps:
     - name: Checkout
       id: checkout
-      # checkout@v2 should be used until s390x runner version is updated
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         ref: DevSecOps
 
@@ -47,7 +48,7 @@ jobs:
     - name: mvn clean package
       run: |
         mvn clean package -f ./acmeair/source/acmeair-mainservice-java/pom.xml
-  
+
     # build the container image for s390x
     - name: podman build
       run: |
@@ -75,8 +76,7 @@ jobs:
     steps:
     - name: Checkout
       id: checkout
-      # checkout@v2 should be used until s390x runner is updated
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         ref: DevSecOps
 
@@ -145,7 +145,7 @@ jobs:
       # probably should replace this with https://github.com/marketplace/actions/find-and-replace
       - name: replace container image in YAML
         run: |
-          sed -i '21s@.*@        image: ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}@' ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml
+          yq -i ".spec.template.spec.containers.0.image = \"${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}\"" ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml
       - name: git config
         run: |
           git config --global user.email ${{ env.GIT_EMAIL }}
@@ -189,27 +189,27 @@ jobs:
       run: |
         ./roxctl --insecure-skip-tls-verify image check --endpoint ${{ env.ROX_CENTRAL_ADDRESS }} --image ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} 2>&1 | tee image_check.txt
     
-    # Send results of security scans through email.
-    - name: Send email 
-      uses: dawidd6/action-send-mail@v3
-      with:
-        server_address: smtp.gmail.com
-        server_port: 465
-        secure: true
-        username: ${{ env.SMTP_USERNAME }}
-        password: ${{ env.SMTP_PASSWORD }}
-        # Subject of mail message
-        subject: Security Scan for image ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
-        to: matt.mondics@ibm.com
-        from: Matt Mondics <matt.mondics@ibm.com>
-        attachments: deployment_check.txt,image_scan.txt,image_check.txt
-        # Body of mail message (might be a filename prefixed with file:// to read from)
-        body: |
-          Red Hat Advanced Cluster Security scans for image:
-          ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
+    # # Send results of security scans through email.
+    # - name: Send email 
+    #   uses: dawidd6/action-send-mail@v3
+    #   with:
+    #     server_address: smtp.gmail.com
+    #     server_port: 465
+    #     secure: true
+    #     username: ${{ env.SMTP_USERNAME }}
+    #     password: ${{ env.SMTP_PASSWORD }}
+    #     # Subject of mail message
+    #     subject: Security Scan for image ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
+    #     to: matt.mondics@ibm.com
+    #     from: Matt Mondics <matt.mondics@ibm.com>
+    #     attachments: deployment_check.txt,image_scan.txt,image_check.txt
+    #     # Body of mail message (might be a filename prefixed with file:// to read from)
+    #     body: |
+    #       Red Hat Advanced Cluster Security scans for image:
+    #       ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
           
-          See attachments for deployment check, image check, and image scan.
+    #       See attachments for deployment check, image check, and image scan.
           
-          Update the application code to remediate security findings described in the attached files.
+    #       Update the application code to remediate security findings described in the attached files.
           
-          Per IBM security practices, failed security scans do not prevent commits to development branches, but they will prevent merging to main branches.
+    #       Per IBM security practices, failed security scans do not prevent commits to development branches, but they will prevent merging to main branches.
