@@ -19,8 +19,9 @@ env:
   Z_IMAGE_TAGS: s390x-${{ github.sha }}
   X_IMAGE_TAGS: amd64-${{ github.sha }}
   MANIFEST_IMAGE_TAG: manifest-${{ github.sha }}
-  IMAGE_REGISTRY: quay-registry-quay-openshift-operators.apps.atsocppa.dmz/mmondics
-  
+  # IMAGE_REGISTRY: quay-registry-quay-openshift-operators.apps.atsocppa.dmz/mmondics
+  IMAGE_REGISTRY: quay.io/mmondics
+
 on:
   push:
     paths:
