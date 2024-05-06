@@ -17,17 +17,17 @@ spec:
         prometheus.io/port: "9080"
     spec:
       containers:
-      - name: acmeair-mainservice-java
-        image: quay-registry-quay-openshift-operators.apps.atsocppa.dmz/mmondics/acmeair-mainservice-java-manifest:manifest-a2c8320a7579ec2d3369de442cfa70adc7fe9913
-        ports:
-        - containerPort: 9080
-        - containerPort: 9443
-        imagePullPolicy: Always
-        env:
-        - name: USERNAME
-          value: admin
-        - name: PASSWORD
-          value: password
+        - name: acmeair-mainservice-java
+          image: quay.io/mmondics/acmeair-mainservice-java-manifest:manifest-ae2aa897d2961162a4476de38900673281f7169f
+          ports:
+            - containerPort: 9080
+            - containerPort: 9443
+          imagePullPolicy: Always
+          env:
+            - name: USERNAME
+              value: admin
+            - name: PASSWORD
+              value: password
 ---
 apiVersion: v1
 kind: Service
@@ -38,3 +38,8 @@ spec:
     - port: 9080
   selector:
     name: acmeair-main-deployment
+  template:
+    spec:
+      containers:
+        "0":
+          image: quay.io/mmondics/acmeair-mainservice-java-manifest:manifest-ae2aa897d2961162a4476de38900673281f7169f
