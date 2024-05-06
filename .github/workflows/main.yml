@@ -40,8 +40,7 @@ jobs:
     steps:
     - name: Checkout
       id: checkout
-      # checkout@v2 should be used until s390x runner version is updated
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         ref: DevSecOps
 
@@ -77,8 +76,7 @@ jobs:
     steps:
     - name: Checkout
       id: checkout
-      # checkout@v2 should be used until s390x runner is updated
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         ref: DevSecOps
 
@@ -191,27 +189,27 @@ jobs:
       run: |
         ./roxctl --insecure-skip-tls-verify image check --endpoint ${{ env.ROX_CENTRAL_ADDRESS }} --image ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} 2>&1 | tee image_check.txt
     
-    # Send results of security scans through email.
-    - name: Send email 
-      uses: dawidd6/action-send-mail@v3
-      with:
-        server_address: smtp.gmail.com
-        server_port: 465
-        secure: true
-        username: ${{ env.SMTP_USERNAME }}
-        password: ${{ env.SMTP_PASSWORD }}
-        # Subject of mail message
-        subject: Security Scan for image ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
-        to: matt.mondics@ibm.com
-        from: Matt Mondics <matt.mondics@ibm.com>
-        attachments: deployment_check.txt,image_scan.txt,image_check.txt
-        # Body of mail message (might be a filename prefixed with file:// to read from)
-        body: |
-          Red Hat Advanced Cluster Security scans for image:
-          ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
+    # # Send results of security scans through email.
+    # - name: Send email 
+    #   uses: dawidd6/action-send-mail@v3
+    #   with:
+    #     server_address: smtp.gmail.com
+    #     server_port: 465
+    #     secure: true
+    #     username: ${{ env.SMTP_USERNAME }}
+    #     password: ${{ env.SMTP_PASSWORD }}
+    #     # Subject of mail message
+    #     subject: Security Scan for image ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
+    #     to: matt.mondics@ibm.com
+    #     from: Matt Mondics <matt.mondics@ibm.com>
+    #     attachments: deployment_check.txt,image_scan.txt,image_check.txt
+    #     # Body of mail message (might be a filename prefixed with file:// to read from)
+    #     body: |
+    #       Red Hat Advanced Cluster Security scans for image:
+    #       ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
           
-          See attachments for deployment check, image check, and image scan.
+    #       See attachments for deployment check, image check, and image scan.
           
-          Update the application code to remediate security findings described in the attached files.
+    #       Update the application code to remediate security findings described in the attached files.
           
-          Per IBM security practices, failed security scans do not prevent commits to development branches, but they will prevent merging to main branches.
+    #       Per IBM security practices, failed security scans do not prevent commits to development branches, but they will prevent merging to main branches.
