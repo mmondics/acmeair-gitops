@@ -38,8 +38,3 @@ spec:
     - port: 9080
   selector:
     name: acmeair-main-deployment
-  template:
-    spec:
-      containers:
-        "0":
-          image: quay.io/mmondics/acmeair-mainservice-java-manifest:manifest-992081fbea6d956b080a788f6c1a2bccffbf22ea
