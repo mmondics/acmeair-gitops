@@ -145,7 +145,7 @@ jobs:
       # probably should replace this with https://github.com/marketplace/actions/find-and-replace
       - name: replace container image in YAML
         run: |
-          yq -i ".spec.template.spec.containers.0.image = \"${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}\"" ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml
+          yq e -i  'select(documentIndex == 0).spec.template.spec.containers[0].image = \"${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}\"' ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml
       - name: git config
         run: |
           git config --global user.email ${{ env.GIT_EMAIL }}
