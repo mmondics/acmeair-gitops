@@ -2,8 +2,8 @@ name: Build, Scan and Rollout Multiarchitecture Containers
 
 env: 
   QUAY_USERNAME: mmondics
-  QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }} # used for quay.io
-  # QUAY_PASSWORD: ${{ secrets.REDHAT_PASSWORD }} # used for on-prem quay
+  # QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }} # used for quay.io
+  QUAY_PASSWORD: ${{ secrets.REDHAT_PASSWORD }} # used for on-prem quay
   REDHAT_USERNAME: mmondics
   REDHAT_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
   GIT_USERNAME: mmondics
@@ -20,8 +20,8 @@ env:
   Z_IMAGE_TAGS: s390x-${{ github.sha }}
   X_IMAGE_TAGS: amd64-${{ github.sha }}
   MANIFEST_IMAGE_TAG: manifest-${{ github.sha }}
-  # IMAGE_REGISTRY: quay-registry-quay-openshift-operators.apps.atsocppa.dmz/mmondics # used for on-prem quay
-  IMAGE_REGISTRY: quay.io/mmondics # used for quay.io
+  IMAGE_REGISTRY: quay-registry-quay-openshift-operators.apps.atsocppa.dmz/mmondics # used for on-prem quay
+  # IMAGE_REGISTRY: quay.io/mmondics # used for quay.io
 
 on:
   push:
