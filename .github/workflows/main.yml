@@ -2,8 +2,8 @@ name: Build, Scan and Rollout Multiarchitecture Containers
 
 env: 
   QUAY_USERNAME: mmondics
-  QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
-  # QUAY_PASSWORD: ${{ secrets.REDHAT_PASSWORD }} #use for on-prem quay
+  # QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }} # used for quay.io
+  QUAY_PASSWORD: ${{ secrets.REDHAT_PASSWORD }} # used for on-prem quay
   REDHAT_USERNAME: mmondics
   REDHAT_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
   GIT_USERNAME: mmondics
@@ -20,8 +20,8 @@ env:
   Z_IMAGE_TAGS: s390x-${{ github.sha }}
   X_IMAGE_TAGS: amd64-${{ github.sha }}
   MANIFEST_IMAGE_TAG: manifest-${{ github.sha }}
-  # IMAGE_REGISTRY: quay-registry-quay-openshift-operators.apps.atsocppa.dmz/mmondics
-  IMAGE_REGISTRY: quay.io/mmondics
+  IMAGE_REGISTRY: quay-registry-quay-openshift-operators.apps.atsocppa.dmz/mmondics # used for on-prem quay
+  # IMAGE_REGISTRY: quay.io/mmondics # used for quay.io
 
 on:
   push:
@@ -37,6 +37,7 @@ jobs:
     runs-on: [self-hosted, linux, s390x, native]
     environment: openshift
 
+    # check out the GitHub repo
     steps:
     - name: Checkout
       id: checkout
@@ -73,6 +74,7 @@ jobs:
     runs-on: [self-hosted, linux, x64, native]
     environment: openshift
 
+    # checkout the GitHub repo
     steps:
     - name: Checkout
       id: checkout
@@ -130,6 +132,7 @@ jobs:
       - name: push manifest list
         run: podman manifest push --tls-verify=false ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }} ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
   
+  # update the deployment YAML file with new image manifest
   update-app-yaml:
     name: update acmeair mainservice application YAML to use new image manifest
     runs-on: ubuntu-latest
@@ -141,11 +144,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: DevSecOps
-      # update image name in deployment YAML
-      # probably should replace this with https://github.com/marketplace/actions/find-and-replace
       - name: replace container image in YAML
         run: |
-          yq -i ".spec.template.spec.containers.0.image = \"${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}\"" ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml
+          yq e -i  "select(documentIndex == 0).spec.template.spec.containers[0].image = \"${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}\"" ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml
       - name: git config
         run: |
           git config --global user.email ${{ env.GIT_EMAIL }}
@@ -163,6 +164,7 @@ jobs:
       - name: create a PR with the image changed
         run: gh pr create --base main --head DevSecOps --title "update deploy-acmeair-mainservice-java.yaml via GitHub Actions" --body "Using image manfest ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}"
 
+  # scan the deployment & container image manifest with RHACS from OCP on Z cluster
   acs-image-scan: 
     name: Scan container manifest with Red Hat Advanced Cluster Security
     runs-on: [self-hosted, linux, s390x]
@@ -203,7 +205,7 @@ jobs:
         to: matt.mondics@ibm.com
         from: Matt Mondics <matt.mondics@ibm.com>
         attachments: deployment_check.txt,image_scan.txt,image_check.txt
-        # Body of mail message (might be a filename prefixed with file:// to read from)
+        # Body of mail message (could be a filename prefixed with file:// to read from)
         body: |
           Red Hat Advanced Cluster Security scans for image:
           ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
