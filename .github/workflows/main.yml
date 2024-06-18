@@ -181,6 +181,12 @@ jobs:
         chmod +x roxctl-s390x
         ln -s roxctl-s390x roxctl
       continue-on-error: true
+        # check out the GitHub repo
+    - name: Checkout
+      id: checkout
+      uses: actions/checkout@v4
+      with:
+        ref: DevSecOps
     - name: deployment-check
       run: |
         ./roxctl --insecure-skip-tls-verify deployment check --endpoint ${{ env.ROX_CENTRAL_ADDRESS }} -f ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml 2>&1 | tee deployment_check.txt
