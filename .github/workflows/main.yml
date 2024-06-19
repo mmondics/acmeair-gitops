@@ -168,7 +168,7 @@ jobs:
   # scan the deployment & container image manifest with RHACS from OCP on Z cluster
   acs-image-scan: 
     name: Scan container manifest with Red Hat Advanced Cluster Security
-    runs-on: [self-hosted, linux, s390x]
+    runs-on: [self-hosted, linux, s390x, ocp]
     environment: openshift
     needs: update-app-yaml
     continue-on-error: true
