@@ -41,7 +41,7 @@ jobs:
     steps:
     - name: Checkout
       id: checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout
       # uses: actions/checkout@v4
       with:
         ref: DevSecOps
