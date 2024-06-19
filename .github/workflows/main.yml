@@ -109,8 +109,7 @@ jobs:
 
   create-manifest:
     name: combine amd64 and s390x container images into a single manifest and push to Quay
-    # runs-on: [self-hosted, linux, s390x, native]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, s390x, native]
     needs:
       - s390x-build-and-push
       - amd64-build-and-push
