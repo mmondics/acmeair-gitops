@@ -1,20 +1,29 @@
 name: Build, Scan and Rollout Multiarchitecture Containers
 
 env: 
+  ## Quay Credentials
   QUAY_USERNAME: mmondics
   # QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }} # used for quay.io
   QUAY_PASSWORD: ${{ secrets.REDHAT_PASSWORD }} # used for on-prem quay
+
+  ## Red Hat Credentials (for pulling images)
   REDHAT_USERNAME: mmondics
   REDHAT_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
+
+  ## Git Credentials (for opening PR)
   GIT_USERNAME: mmondics
   GIT_EMAIL: matt.mondics@ibm.com
-  SMTP_USERNAME: ibmwashingtonsystemscenter@gmail.com
-  SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
   GH_TOKEN: ${{ github.token }}
 
+  ## SMTP Credentials
+  SMTP_USERNAME: ibmwashingtonsystemscenter@gmail.com
+  SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+
+  ## RHACS Target
   ROX_CENTRAL_ADDRESS: https://central-rhacs-operator.apps.atsocpd2.dmz:443
   ROX_API_TOKEN: ${{ secrets.ROX_API_TOKEN }}
 
+  ## Image name, tag, and registry
   APP_NAME: acmeair-mainservice-java
   MANIFEST_NAME: acmeair-mainservice-java-manifest
   Z_IMAGE_TAGS: s390x-${{ github.sha }}
@@ -146,29 +155,24 @@ jobs:
         with:
           ref: DevSecOps
       - name: replace container image in YAML
+      # The yq command is similar to json's `jq`. The following command will find the container image line in the deployment YAML file, and replace it with the newly created manifest file.
         run: |
           yq e -i  "select(documentIndex == 0).spec.template.spec.containers[0].image = \"${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}\"" ./acmeair/deployments/deploy-acmeair-mainservice-java.yaml
       - name: git config
         run: |
           git config --global user.email ${{ env.GIT_EMAIL }}
           git config --global user.name ${{ env.GIT_USERNAME }}
-      - name: check for changes
-        run: git status
-      - name: stage changed files
-        run: git add .
-      - name: commit changed files
-        run: git commit -m "update deploy-acmeair-mainservice-java.yaml via GitHub Actions"
-      - name: fetch from DevSecOps
-        run: git fetch origin DevSecOps
-      - name: push code to DevSecOps branch
-        run: git push origin HEAD:DevSecOps
-      - name: create a PR with the image changed
-        run: gh pr create --base main --head DevSecOps --title "update deploy-acmeair-mainservice-java.yaml via GitHub Actions" --body "Using image manfest ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}"
+          git status
+          git add .
+          git commit -m "update deploy-acmeair-mainservice-java.yaml via GitHub Actions"
+          git fetch origin DevSecOps
+          git push origin HEAD:DevSecOps
+          gh pr create --base main --head DevSecOps --title "update deploy-acmeair-mainservice-java.yaml via GitHub Actions" --body "Using image manfest ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}"
 
   # scan the deployment & container image manifest with RHACS from OCP on Z cluster
   acs-image-scan: 
     name: Scan container manifest with Red Hat Advanced Cluster Security
-    runs-on: [self-hosted, linux, s390x]
+    runs-on: [self-hosted, linux, s390x, ocp]
     environment: openshift
     needs: update-app-yaml
     continue-on-error: true
@@ -207,7 +211,6 @@ jobs:
         secure: true
         username: ${{ env.SMTP_USERNAME }}
         password: ${{ env.SMTP_PASSWORD }}
-        # Subject of mail message
         subject: Security Scan for image ${{ env.IMAGE_REGISTRY }}/${{ env.MANIFEST_NAME }}:${{ env.MANIFEST_IMAGE_TAG }}
         to: matt.mondics@ibm.com
         from: Matt Mondics <matt.mondics@ibm.com>
