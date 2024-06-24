@@ -66,18 +66,20 @@ jobs:
         podman version
         podman login registry.redhat.io -u ${{ env.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
         podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java
+        podman login ${{ env.IMAGE_REGISTRY }} -u ${{ env.QUAY_USERNAME }} -p ${{ env.QUAY_PASSWORD }} --tls-verify=false
+        podman push ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.Z_IMAGE_TAGS }} --tls-verify=false
 
-    # push the s390x container image to repo
-    - name: Push to Registry 
-      id: push-to-registry
-      uses: redhat-actions/push-to-registry@v2.7
-      with:
-        image: ${{ env.APP_NAME }}
-        tags: ${{ env.Z_IMAGE_TAGS }}
-        registry: ${{ env.IMAGE_REGISTRY }}
-        username: ${{ env.QUAY_USERNAME }}
-        password: ${{ env.QUAY_PASSWORD }}
-        tls-verify: false
+    # # push the s390x container image to repo
+    # - name: Push to Registry 
+    #   id: push-to-registry
+    #   uses: redhat-actions/push-to-registry@v2.7
+    #   with:
+    #     image: ${{ env.APP_NAME }}
+    #     tags: ${{ env.Z_IMAGE_TAGS }}
+    #     registry: ${{ env.IMAGE_REGISTRY }}
+    #     username: ${{ env.QUAY_USERNAME }}
+    #     password: ${{ env.QUAY_PASSWORD }}
+    #     tls-verify: false
 
   amd64-build-and-push: 
     name: amd64 build and push to Quay
@@ -103,18 +105,20 @@ jobs:
         podman version
         podman login registry.redhat.io -u ${{ env.REDHAT_USERNAME }} -p ${{ secrets.REDHAT_PASSWORD }}
         podman build -t ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }} ./acmeair/source/acmeair-mainservice-java
+        podman login ${{ env.IMAGE_REGISTRY }} -u ${{ env.QUAY_USERNAME }} -p ${{ env.QUAY_PASSWORD }} --tls-verify=false
+        podman push ${{ env.IMAGE_REGISTRY }}/${{ env.APP_NAME }}:${{ env.X_IMAGE_TAGS }} --tls-verify=false
 
-    # push the amd64 container image to repo
-    - name: Push to Registry 
-      id: push-to-registry
-      uses: redhat-actions/push-to-registry@v2
-      with:
-        image: ${{ env.APP_NAME }}
-        tags: ${{ env.X_IMAGE_TAGS }}
-        registry: ${{ env.IMAGE_REGISTRY }}
-        username: ${{ env.QUAY_USERNAME }}
-        password: ${{ env.QUAY_PASSWORD }}
-        tls-verify: false
+    # # push the amd64 container image to repo
+    # - name: Push to Registry 
+    #   id: push-to-registry
+    #   uses: redhat-actions/push-to-registry@v2
+    #   with:
+    #     image: ${{ env.APP_NAME }}
+    #     tags: ${{ env.X_IMAGE_TAGS }}
+    #     registry: ${{ env.IMAGE_REGISTRY }}
+    #     username: ${{ env.QUAY_USERNAME }}
+    #     password: ${{ env.QUAY_PASSWORD }}
+    #     tls-verify: false
 
   create-manifest:
     name: combine amd64 and s390x container images into a single manifest and push to Quay
