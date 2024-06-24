@@ -1,0 +1,10 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: acmeair-flight-route
+spec:
+  host: acmeair-rhacm.apps.atsocpd2.dmz
+  path: /flight
+  to:
+    kind: Service
+    name: acmeair-flight-service
