@@ -80,67 +80,43 @@ status:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pvc-booking-db
-  namespace: acmeair-rhacm-persistent
+  name: acmeair-booking-db-pvc
 spec:
   accessModes:
-  - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 1Gi
-  storageClassName: rootsquash-nfs
-  volumeMode: Filesystem
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: pv-booking-db
-spec:
-  accessModes:
-  - ReadWriteMany
-  capacity:
-    storage: 1Gi
-  nfs:
-    path: /srv/ocp/atsocpd1/mongodb
-    server: 192.168.176.67
-  persistentVolumeReclaimPolicy: Delete
-  storageClassName: rootsquash-nfs
-  volumeMode: Filesystem
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: acmeair-booking-db
+ name: acmeair-booking-db
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: acmeair-booking-db
-  strategy: {}
-  template:
-    metadata:
-      labels:
-        name: acmeair-booking-db
-    spec:
-      volumes:
-        - name: acmeair-booking-db-1
-          emptyDir: {}
-        - name: pvc-booking-db
-          persistentVolumeClaim:
-            claimName: pvc-booking-db
-      containers:
-      - image: quay.io/mmondics/acmeair-mongo:manifest-v1
-        name: acmeair-booking-db
-        ports:
-        - containerPort: 27017
-          protocol: TCP
-        resources: {}
-        volumeMounts:
-          - name: acmeair-booking-db-1
-            mountPath: /data/configdb
-          - name: pvc-booking-db
-            mountPath: /data/db
-            persistentVolumeClaim:
-              claimName: pvc-booking-db
-      restartPolicy: Always
+ replicas: 1
+ selector:
+   matchLabels:
+     name: acmeair-booking-db
+ strategy: {}
+ template:
+   metadata:
+     creationTimestamp: null
+     labels:
+       name: acmeair-booking-db
+   spec:
+     volumes:
+       - name: acmeair-booking-db-storage
+         persistentVolumeClaim:
+           claimName: acmeair-booking-db-pvc
+     containers:
+     - image: quay.io/mmondics/acmeair-mongo:manifest-v1
+       name: acmeair-booking-db
+       ports:
+       - containerPort: 27017
+         protocol: TCP
+       resources: {}
+       volumeMounts:
+         - name: acmeair-booking-db-storage
+           mountPath: /data/db
+     restartPolicy: Always
 status: {}
