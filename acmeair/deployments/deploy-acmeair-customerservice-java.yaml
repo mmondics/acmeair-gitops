@@ -75,6 +75,17 @@ spec:
 status:
   loadBalancer: {}
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: acmeair-customer-db-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -93,10 +104,9 @@ spec:
         name: acmeair-customer-db
     spec:
       volumes:
-        - name: acmeair-customer-db-1
-          emptyDir: {}
-        - name: acmeair-customer-db-2
-          emptyDir: {}
+        - name: acmeair-customer-db-storage
+          persistentVolumeClaim:
+            claimName: acmeair-customer-db-pvc
       containers:
       - image: quay.io/mmondics/acmeair-mongo:manifest-v1
         name: acmeair-customer-db
@@ -105,9 +115,7 @@ spec:
           protocol: TCP
         resources: {}
         volumeMounts:
-          - name: acmeair-customer-db-1
-            mountPath: /data/configdb
-          - name: acmeair-customer-db-2
+          - name: acmeair-customer-db-storage
             mountPath: /data/db
       restartPolicy: Always
 status: {}

@@ -73,6 +73,17 @@ spec:
 status:
   loadBalancer: {}
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: acmeair-flight-db-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -91,10 +102,9 @@ spec:
         name: acmeair-flight-db
     spec:
       volumes:
-        - name: acmeair-flight-db-1
-          emptyDir: {}
-        - name: acmeair-flight-db-2
-          emptyDir: {}
+        - name: acmeair-flight-db-storage
+          persistentVolumeClaim:
+            claimName: acmeair-flight-db-pvc
       containers:
       - image: quay.io/mmondics/acmeair-mongo:manifest-v1
         name: acmeair-flight-db
@@ -103,9 +113,7 @@ spec:
           protocol: TCP
         resources: {}
         volumeMounts:
-          - name: acmeair-flight-db-1
-            mountPath: /data/configdb
-          - name: acmeair-flight-db-2
+          - name: acmeair-flight-db-storage
             mountPath: /data/db
       restartPolicy: Always
 status: {}
