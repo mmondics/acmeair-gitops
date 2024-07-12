@@ -115,7 +115,7 @@ spec:
         - name: acmeair-customer-db-2
           emptyDir: {}
       containers:
-      - image: quay.io/mmondics/acmeair-mongo:manifest-v2
+      - image: quay.io/mmondics/acmeair-mongo:manifest-v3
         name: acmeair-customer-db
         ports:
         - containerPort: 27017
@@ -152,7 +152,7 @@ status: {}
 #         ports:
 #         - containerPort: 27017
 #           protocol: TCP
-#         image: quay.io/mmondics/acmeair-mongo:manifest-v2
+#         image: quay.io/mmondics/acmeair-mongo:manifest-v3
 #         volumeMounts:
 #         - name: acmeair-customer-db-1
 #           mountPath: /data/configdb
