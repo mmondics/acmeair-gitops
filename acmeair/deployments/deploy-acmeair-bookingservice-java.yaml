@@ -116,7 +116,7 @@ spec:
        - name: acmeair-booking-db-2
          emptyDir: {}
      containers:
-     - image: quay.io/mmondics/acmeair-mongo:manifest-v2
+     - image: quay.io/mmondics/acmeair-mongo:manifest-v1
        name: acmeair-booking-db
        ports:
        - containerPort: 27017
@@ -153,7 +153,7 @@ status: {}
 #         ports:
 #         - containerPort: 27017
 #           protocol: TCP
-#         image: quay.io/mmondics/acmeair-mongo:manifest-v2
+#         image: quay.io/mmondics/acmeair-mongo:manifest-v1
 #         volumeMounts:
 #         - name: acmeair-booking-db-1
 #           mountPath: /data/configdb
