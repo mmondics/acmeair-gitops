@@ -77,7 +77,6 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  creationTimestamp: null
   labels:
     service: acmeair-customer-db
   name: acmeair-customer-db
@@ -95,7 +94,6 @@ status:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   name: acmeair-customer-db
 spec:
   replicas: 1
@@ -105,8 +103,7 @@ spec:
   strategy: {}
   template:
     metadata:
-      creationTimestamp: null
-      labels:
+       labels:
         name: acmeair-customer-db
     spec:
       volumes:
