@@ -25,8 +25,10 @@ spec:
         resources:
           limits:
             cpu: '8'
+            memory: '1G'
           requests:
             cpu: '4'
+            memory: '500M'
         env:
         - name: USERNAME
           value: admin
