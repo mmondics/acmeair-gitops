@@ -40,8 +40,6 @@ spec:
           value: '*=info'
         - name: LOGGING_FORMAT
           value: 'simple'
-        - name: INSTANA_IGNORE
-          value: 'true'
 ---
 apiVersion: v1
 kind: Service
