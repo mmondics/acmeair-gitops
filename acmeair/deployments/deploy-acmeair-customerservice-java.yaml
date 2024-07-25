@@ -52,6 +52,8 @@ spec:
           value: '*=info'
         - name: LOGGING_FORMAT
           value: 'simple'
+        - name: INSTANA_IGNORE
+          value: 'true'
         readinessProbe:
           httpGet:
             path: /health
