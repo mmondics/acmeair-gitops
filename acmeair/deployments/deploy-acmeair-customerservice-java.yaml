@@ -114,7 +114,7 @@ spec:
         - name: acmeair-customer-db-2
           emptyDir: {}
       containers:
-      - image: docker.io/mongo:4.4.6
+      - image: quay.io/mmondics/mongo:4.4.6-manifest
         name: acmeair-customer-db
         ports:
         - containerPort: 27017
@@ -151,7 +151,7 @@ status: {}
 #         ports:
 #         - containerPort: 27017
 #           protocol: TCP
-#         image: docker.io/mongo:4.4.6
+#         image: quay.io/mmondics/mongo:4.4.6-manifest
 #         volumeMounts:
 #         - name: acmeair-customer-db-1
 #           mountPath: /data/configdb
