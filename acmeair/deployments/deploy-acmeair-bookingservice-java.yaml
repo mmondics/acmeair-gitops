@@ -24,10 +24,10 @@ spec:
         imagePullPolicy: Always
         resources:
           limits:
-            cpu: '8'
+            cpu: '4'
             memory: '1G'
           requests:
-            cpu: '4'
+            cpu: '2'
             memory: '500M'
         env:
         - name: USERNAME
