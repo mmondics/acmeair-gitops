@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: acmeair-bookingservice-java
-        image: quay.io/mmondics/acmeair-bookingservice-java:manifest-5.0
+        image: quay.io/mmondics/acmeair-bookingservice-java:manifest-6.1
         ports:
           - containerPort: 9080
           - containerPort: 9443
