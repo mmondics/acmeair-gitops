@@ -1,4 +1,4 @@
-FROM docker.io/open-liberty:full
+FROM quay.io/mmondics/open-liberty:latest
 
 # Config
 COPY --chown=1001:0 src/main/liberty/config/server.xml /config/server.xml
