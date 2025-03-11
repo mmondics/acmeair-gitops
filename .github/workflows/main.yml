@@ -3,8 +3,8 @@ name: Build, Scan and Rollout Multiarchitecture Containers
 env: 
   ## Quay Credentials
   QUAY_USERNAME: mmondics
-  # QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }} # used for quay.io
-  QUAY_PASSWORD: ${{ secrets.REDHAT_PASSWORD }} # used for on-prem quay
+  QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }} # used for quay.io
+  # QUAY_PASSWORD: ${{ secrets.REDHAT_PASSWORD }} # used for on-prem quay
 
   ## Red Hat Credentials (for pulling images)
   REDHAT_USERNAME: mmondics
