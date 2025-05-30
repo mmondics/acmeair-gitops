@@ -1,0 +1,236 @@
+kind: Template
+apiVersion: template.openshift.io/v1
+metadata:
+  name: rhel9-server-small-s390x-mongodb
+  namespace: openshift
+  labels:
+    app.kubernetes.io/part-of: hyperconverged-cluster
+    template.kubevirt.io/architecture: s390x
+    flavor.template.kubevirt.io/small: 'true'
+    template.kubevirt.io/version: v0.32.2
+    app.kubernetes.io/version: 4.18.3
+    template.kubevirt.io/type: vm
+    vm.kubevirt.io/template: rhel9-server-small-s390x
+    app.kubernetes.io/component: templating
+    app.kubernetes.io/managed-by: ssp-operator
+    os.template.kubevirt.io/rhel9.0: 'true'
+    os.template.kubevirt.io/rhel9.1: 'true'
+    app.kubernetes.io/name: custom-templates
+    os.template.kubevirt.io/rhel9.2: 'true'
+    os.template.kubevirt.io/rhel9.3: 'true'
+    os.template.kubevirt.io/rhel9.4: 'true'
+    vm.kubevirt.io/template.namespace: openshift
+    os.template.kubevirt.io/rhel9.5: 'true'
+    workload.template.kubevirt.io/server: 'true'
+  annotations:
+    template.kubevirt.io/provider: ''
+    template.kubevirt.io/provider-url: 'https://www.redhat.com'
+    template.kubevirt.io/containerdisks: |
+      registry.redhat.io/rhel9/rhel-guest-image
+    template.kubevirt.io/version: v1alpha1
+    openshift.io/display-name: (MongoDB) Red Hat Enterprise Linux 9 VM
+    openshift.io/documentation-url: 'https://github.com/kubevirt/common-templates'
+    operator-sdk/primary-resource-type: SSP.ssp.kubevirt.io
+    defaults.template.kubevirt.io/disk: rootdisk
+    name.os.template.kubevirt.io/rhel9.0: Red Hat Enterprise Linux 9.0 or higher
+    name.os.template.kubevirt.io/rhel9.1: Red Hat Enterprise Linux 9.0 or higher
+    template.kubevirt.io/editable: |
+      /objects[0].spec.template.spec.domain.cpu.sockets
+      /objects[0].spec.template.spec.domain.cpu.cores
+      /objects[0].spec.template.spec.domain.cpu.threads
+      /objects[0].spec.template.spec.domain.memory.guest
+      /objects[0].spec.template.spec.domain.devices.disks
+      /objects[0].spec.template.spec.volumes
+      /objects[0].spec.template.spec.networks
+    name.os.template.kubevirt.io/rhel9.2: Red Hat Enterprise Linux 9.0 or higher
+    template.openshift.io/bindable: 'false'
+    openshift.kubevirt.io/pronounceable-suffix-for-name-expression: 'true'
+    operator-sdk/primary-resource: openshift-cnv/ssp-kubevirt-hyperconverged
+    name.os.template.kubevirt.io/rhel9.3: Red Hat Enterprise Linux 9.0 or higher
+    name.os.template.kubevirt.io/rhel9.4: Red Hat Enterprise Linux 9.0 or higher
+    tags: 'hidden,kubevirt,virtualmachine,linux,rhel'
+    name.os.template.kubevirt.io/rhel9.5: Red Hat Enterprise Linux 9.0 or higher
+    template.kubevirt.io/provider-support-level: Full
+    description: Template for Red Hat Enterprise Linux 9 VM or newer. A PVC with the RHEL disk image must be available.
+    openshift.io/support-url: 'https://github.com/kubevirt/common-templates/issues'
+    iconClass: icon-rhel
+    openshift.io/provider-display-name: ''
+objects:
+  - apiVersion: kubevirt.io/v1
+    kind: VirtualMachine
+    metadata:
+      annotations:
+        vm.kubevirt.io/validations: |
+          [
+            {
+              "name": "minimal-required-memory",
+              "path": "jsonpath::.spec.domain.memory.guest",
+              "rule": "integer",
+              "message": "This VM requires more memory.",
+              "min": 1610612736
+            }
+          ]
+      labels:
+        app: '${NAME}'
+        kubevirt.io/dynamic-credentials-support: 'true'
+        vm.kubevirt.io/template: rhel9-server-small-s390x-mongodb
+        vm.kubevirt.io/template.revision: '1'
+        vm.kubevirt.io/template.namespace: openshift
+      name: '${NAME}'
+      namespace: openshift
+    spec:
+      dataVolumeTemplates:
+        - apiVersion: cdi.kubevirt.io/v1beta1
+          kind: DataVolume
+          metadata:
+            name: '${NAME}'
+          spec:
+            sourceRef:
+              kind: DataSource
+              name: '${DATA_SOURCE_NAME}'
+              namespace: '${DATA_SOURCE_NAMESPACE}'
+            storage:
+              resources:
+                requests:
+                  storage: 30Gi
+        - metadata:
+            name: 'dv-${NAME}'
+          spec:
+            source:
+              blank: {}
+            storage:
+              resources:
+                requests:
+                  storage: 30Gi
+              storageClassName: ocs-storagecluster-ceph-rbd
+      runStrategy: Halted
+      template:
+        metadata:
+          annotations:
+            vm.kubevirt.io/flavor: small
+            vm.kubevirt.io/os: rhel9
+            vm.kubevirt.io/workload: server
+          labels:
+            kubevirt.io/domain: '${NAME}'
+            kubevirt.io/size: small
+        spec:
+          architecture: s390x
+          domain:
+            cpu:
+              cores: 1
+              sockets: 1
+              threads: 1
+            devices:
+              disks:
+                - disk:
+                    bus: virtio
+                  name: rootdisk
+                - disk:
+                    bus: virtio
+                  name: cloudinitdisk
+                - disk:
+                    bus: virtio
+                  name: data
+                - name: rhsm-creds
+                  disk:
+                    bus: virtio
+              interfaces:
+                - masquerade: {}
+                  model: virtio
+                  name: default
+              rng: {}
+            memory:
+              guest: 2Gi
+          networks:
+            - name: default
+              pod: {}
+          terminationGracePeriodSeconds: 180
+          volumes:
+            - dataVolume:
+                name: '${NAME}'
+              name: rootdisk
+            - dataVolume:
+                name: 'dv-${NAME}'
+              name: data
+            - name: rhsm-creds
+              secret:
+                secretName: rhsm-creds
+            - cloudInitNoCloud:
+                userData: |-
+                  #cloud-config
+                  user: cloud-user
+                  password: ${CLOUD_USER_PASSWORD}
+                  chpasswd: { expire: False }
+
+                  write_files:
+                  - path: /usr/local/bin/setup-rhsm.sh
+                    permissions: '0755'
+                    content: |
+                      #!/bin/bash
+                      RHSM_USER=$(cat /mnt/creds/rhsm_username)
+                      RHSM_PASS=$(cat /mnt/creds/rhsm_password)
+                      subscription-manager register --username="$RHSM_USER" --password="$RHSM_PASS" --auto-attach
+                      subscription-manager repos --enable=rhel-9-for-s390x-baseos-rpms
+                      subscription-manager repos --enable=rhel-9-for-s390x-appstream-rpms
+                  - path: /etc/yum.repos.d/mongodb-enterprise-8.0.repo
+                    content: |
+                      [mongodb-enterprise-8.0]
+                      name=MongoDB Enterprise Repository
+                      baseurl=https://repo.mongodb.com/yum/redhat/$releasever/mongodb-enterprise/8.0/$basearch/
+                      gpgcheck=1
+                      enabled=1
+                      gpgkey=https://www.mongodb.org/static/pgp/server-8.0.asc
+                  - path: /usr/local/bin/setup-mongo.sh
+                    permissions: '0755'
+                    content: |
+                      #!/bin/bash
+                      mkdir -p /data/db
+                      chown -R mongod:mongod /data/db
+                      sed -i 's|dbPath: /var/lib/mongo|dbPath: /data/db|' /etc/mongod.conf
+                      sed -i 's/^ *bindIp: .*/  bindIp: 0.0.0.0/' /etc/mongod.conf
+                      echo -e "\nsetParameter:\n  diagnosticDataCollectionEnabled: false" >> /etc/mongod.conf # Disable FTDC data collection to avoid SELinux denials
+                      semanage fcontext -a -t mongod_var_lib_t "/data(/.*)?"
+                      restorecon -R /data
+                      systemctl restart mongod
+                      
+                  packages:
+                    - parted
+                    - xfsprogs
+
+                  bootcmd:
+                    - parted /dev/vdc --script mklabel gpt mkpart primary xfs 0% 100%
+                    - mkdir -p /mnt/creds
+                    - mount /dev/vdd /mnt/creds
+
+                  fs_setup:
+                    - label: data
+                      filesystem: xfs
+                      device: /dev/vdc1
+                      partition: auto
+
+                  mounts:
+                  - ["/dev/vdc1", "/data", "xfs", "defaults", "0", "0"]
+
+                  runcmd:
+                    - /usr/local/bin/setup-rhsm.sh
+                    - curl -O https://downloads.mongodb.com/compass/mongodb-mongosh-2.5.1.s390x.rpm
+                    - dnf install -y ./mongodb-mongosh-2.5.1.s390x.rpm
+                    - dnf install -y mongodb-enterprise
+                    - systemctl enable --now mongod
+                    - /usr/local/bin/setup-mongo.sh
+              name: cloudinitdisk
+parameters:
+  - name: NAME
+    description: VM name
+    generate: expression
+    from: 'rhel9-[a-z0-9]{16}'
+  - name: DATA_SOURCE_NAME
+    description: Name of the DataSource to clone
+    value: rhel9
+  - name: DATA_SOURCE_NAMESPACE
+    description: Namespace of the DataSource
+    value: openshift-virtualization-os-images
+  - name: CLOUD_USER_PASSWORD
+    description: Randomized password for the cloud-init user cloud-user
+    generate: expression
+    from: '[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}'
