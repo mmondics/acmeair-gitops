@@ -1,0 +1,175 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  annotations:
+    vm.kubevirt.io/validations: |
+      [
+        {
+          "name": "minimal-required-memory",
+          "path": "jsonpath::.spec.domain.memory.guest",
+          "rule": "integer",
+          "message": "This VM requires more memory.",
+          "min": 1610612736
+        }
+      ]
+  labels:
+    app: rhel9-mongodb
+    kubevirt.io/dynamic-credentials-support: 'true'
+    vm.kubevirt.io/template: rhel9-server-small-s390x-mongodb
+    vm.kubevirt.io/template.namespace: openshift
+    vm.kubevirt.io/template.revision: '1'
+  name: rhel9-mongodb
+  namespace: acmeair
+spec:
+  dataVolumeTemplates:
+    - apiVersion: cdi.kubevirt.io/v1beta1
+      kind: DataVolume
+      metadata:
+        creationTimestamp: null
+        name: dv-rhel9-mongodb
+      spec:
+        sourceRef:
+          kind: DataSource
+          name: rhel9
+          namespace: openshift-virtualization-os-images
+        storage:
+          resources:
+            requests:
+              storage: 30Gi
+    - metadata:
+        name: dv-rhel9-mongodb-data
+      spec:
+        source:
+          blank: {}
+        storage:
+          resources:
+            requests:
+              storage: 30Gi
+          storageClassName: ocs-storagecluster-ceph-rbd
+  runStrategy: RerunOnFailure
+  template:
+    metadata:
+      annotations:
+        vm.kubevirt.io/flavor: small
+        vm.kubevirt.io/os: rhel9
+        vm.kubevirt.io/workload: server
+      creationTimestamp: null
+      labels:
+        kubevirt.io/domain: rhel9-mongodb
+        kubevirt.io/size: small
+    spec:
+      accessCredentials:
+        - sshPublicKey:
+            propagationMethod:
+              noCloud: {}
+            source:
+              secret:
+                secretName: ocpvirt-ssh
+      architecture: s390x
+      domain:
+        cpu:
+          cores: 1
+          sockets: 1
+          threads: 1
+        devices:
+          disks:
+            - disk:
+                bus: virtio
+              name: rootdisk
+            - disk:
+                bus: virtio
+              name: cloudinitdisk
+            - disk:
+                bus: virtio
+              name: data
+            - disk:
+                bus: virtio
+              name: rhsm-creds
+          interfaces:
+            - masquerade: {}
+              model: virtio
+              name: default
+          rng: {}
+        machine:
+          type: s390-ccw-virtio
+        memory:
+          guest: 2Gi
+        resources: {}
+      networks:
+        - name: default
+          pod: {}
+      terminationGracePeriodSeconds: 180
+      volumes:
+        - dataVolume:
+            name: dv-rhel9-mongodb
+          name: rootdisk
+        - dataVolume:
+            name: dv-rhel9-mongodb-data
+          name: data
+        - name: rhsm-creds
+          secret:
+            secretName: rhsm-creds
+        - cloudInitNoCloud:
+            userData: |-
+              #cloud-config
+              user: cloud-user
+              password: sb7v-juxg-wusl
+              chpasswd: { expire: False }
+
+              write_files:
+              - path: /usr/local/bin/setup-rhsm.sh
+                permissions: '0755'
+                content: |
+                  #!/bin/bash
+                  RHSM_USER=$(cat /mnt/creds/rhsm_username)
+                  RHSM_PASS=$(cat /mnt/creds/rhsm_password)
+                  subscription-manager register --username="$RHSM_USER" --password="$RHSM_PASS" --auto-attach
+                  subscription-manager repos --enable=rhel-9-for-s390x-baseos-rpms
+                  subscription-manager repos --enable=rhel-9-for-s390x-appstream-rpms
+              - path: /etc/yum.repos.d/mongodb-enterprise-8.0.repo
+                content: |
+                  [mongodb-enterprise-8.0]
+                  name=MongoDB Enterprise Repository
+                  baseurl=https://repo.mongodb.com/yum/redhat/$releasever/mongodb-enterprise/8.0/$basearch/
+                  gpgcheck=1
+                  enabled=1
+                  gpgkey=https://www.mongodb.org/static/pgp/server-8.0.asc
+              - path: /usr/local/bin/setup-mongo.sh
+                permissions: '0755'
+                content: |
+                  #!/bin/bash
+                  mkdir -p /data/db
+                  chown -R mongod:mongod /data/db
+                  sed -i 's|dbPath: /var/lib/mongo|dbPath: /data/db|' /etc/mongod.conf
+                  sed -i 's/^ *bindIp: .*/  bindIp: 0.0.0.0/' /etc/mongod.conf
+                  echo -e "\nsetParameter:\n  diagnosticDataCollectionEnabled: false" >> /etc/mongod.conf # Disable FTDC data collection to avoid SELinux denials
+                  semanage fcontext -a -t mongod_var_lib_t "/data(/.*)?"
+                  restorecon -R /data
+                  systemctl restart mongod
+                  
+              packages:
+                - parted
+                - xfsprogs
+
+              bootcmd:
+                - parted /dev/vdc --script mklabel gpt mkpart primary xfs 0% 100%
+                - mkdir -p /mnt/creds
+                - mount /dev/vdd /mnt/creds
+
+              fs_setup:
+                - label: data
+                  filesystem: xfs
+                  device: /dev/vdc1
+                  partition: auto
+
+              mounts:
+              - ["/dev/vdc1", "/data", "xfs", "defaults", "0", "0"]
+
+              runcmd:
+                - /usr/local/bin/setup-rhsm.sh
+                - curl -O https://downloads.mongodb.com/compass/mongodb-mongosh-2.5.1.s390x.rpm
+                - dnf install -y ./mongodb-mongosh-2.5.1.s390x.rpm
+                - dnf install -y mongodb-enterprise
+                - systemctl enable --now mongod
+                - /usr/local/bin/setup-mongo.sh
+          name: cloudinitdisk
