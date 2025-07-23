@@ -19,7 +19,6 @@ metadata:
     vm.kubevirt.io/template.namespace: openshift
     vm.kubevirt.io/template.revision: '1'
   name: rhel9-mongodb
-  namespace: acmeair
 spec:
   dataVolumeTemplates:
     - apiVersion: cdi.kubevirt.io/v1beta1
