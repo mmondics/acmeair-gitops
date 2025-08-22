@@ -67,7 +67,7 @@ spec:
       architecture: s390x
       domain:
         cpu:
-          cores: 1
+          cores: 2
           sockets: 1
           threads: 1
         devices:
@@ -92,7 +92,7 @@ spec:
         machine:
           type: s390-ccw-virtio
         memory:
-          guest: 2Gi
+          guest: 4Gi
         resources: {}
       networks:
         - name: default
